@@ -15,6 +15,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>rentinn</name>
     <description>Backend Rentinn</description>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>3.2.3</version>
+        </dependency>
+    </dependencies>
 
     <packaging>pom</packaging>
 
@@ -24,8 +31,7 @@
 
     <modules>
         <module>user-service</module>
-<!--        <module>market-services</module>-->
-<!--        <module>fetching-services</module>-->
+        <module>renting-service</module>
     </modules>
 
     <build>

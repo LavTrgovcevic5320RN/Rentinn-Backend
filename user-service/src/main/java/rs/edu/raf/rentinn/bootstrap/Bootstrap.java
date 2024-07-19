@@ -50,13 +50,13 @@ public class Bootstrap implements CommandLineRunner {
                 true
         );
 
-        Customer customerCompany = new Customer();
-        customerCompany.setFirstName("Customer");
-        customerCompany.setEmail("customer@gmail.com");
-        customerCompany.setPassword(passwordEncoder.encode("customer"));
-        customerCompany.setLastName("Markovic");
-        customerCompany.setActive(true);
-        customerRepository.save(customerCompany);
+        Customer customer = new Customer();
+        customer.setFirstName("Customer");
+        customer.setEmail("customer@gmail.com");
+        customer.setPassword(passwordEncoder.encode("customer"));
+        customer.setLastName("Markovic");
+        customer.setActive(true);
+        customerRepository.save(customer);
 
         System.out.println("Users seeded");
     }

@@ -33,8 +33,26 @@ public class EmployeeServiceImpl implements EmployeeService {
     private JwtUtil jwtUtil;
     private PasswordEncoder passwordEncoder;
 
+    public EmployeeServiceImpl(
+            EmployeeMapper employeeMapper,
+            PermissionMapper permissionMapper,
+            EmployeeRepository employeeRepository,
+            PermissionRepository permissionRepository,
+//            EmailService emailService,
+            JwtUtil jwtUtil,
+            PasswordEncoder passwordEncoder
+    ){
+        this.employeeMapper = employeeMapper;
+        this.permissionMapper = permissionMapper;
+        this.employeeRepository = employeeRepository;
+        this.permissionRepository = permissionRepository;
+//        this.emailService = emailService;
+        this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
+    }
+
     @Override
-    @Cacheable(value = "findEmployeesByUsername", key="#username")
+//    @Cacheable(value = "findEmployeesByUsername", key="#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<Employee> myEmployee = this.employeeRepository.findByEmail(username);
 
