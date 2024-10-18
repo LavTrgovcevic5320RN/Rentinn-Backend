@@ -1,15 +1,25 @@
 package rs.edu.raf.rentinn.services.implementations;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rs.edu.raf.rentinn.mapper.CustomerMapper;
 import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.repositories.CustomerRepository;
+import rs.edu.raf.rentinn.requests.CustomerActivationRequest;
+import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
 import rs.edu.raf.rentinn.services.CustomerService;
+import rs.edu.raf.rentinn.services.EmailService;
 import rs.edu.raf.rentinn.services.EmployeeService;
 
 import java.util.List;
@@ -20,6 +30,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
+    private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
+
+    private final CustomerMapper customerMapper;
     @Value("${front.port}")
     private String frontPort;
     private final PasswordEncoder passwordEncoder;
@@ -29,7 +42,7 @@ public class CustomerServiceImpl implements CustomerService {
 //    private final CurrencyService currencyService;
 //    private final BankAccountService bankAccountService;
 //    private final CompanyService companyService;
-//    private final EmailService emailService;
+    private final EmailService emailService;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -51,4 +64,48 @@ public class CustomerServiceImpl implements CustomerService {
                 authorities);
     }
 
+    @Override
+    public boolean registerCustomer(CustomerCreationRequest creationRequest) {
+        Optional<Customer> optionalCustomer = this.customerRepository.findCustomerByEmail(creationRequest.getEmail());
+        if (optionalCustomer.isPresent()) {
+            return false;
+//            return new CustomerRegistrationResponse("User with the same email already exists", HttpStatus.BAD_REQUEST);
+        }
+
+        Customer customer = customerMapper.createNewCustomer(creationRequest);
+        customer = customerRepository.save(customer);
+
+        String sendTo = customer.getEmail();
+        String subject = "Account activation";
+        String text = "Your activation code: " + customer.getActivationToken();
+        emailService.sendEmail(sendTo, subject, text);
+//        return new CustomerRegistrationResponse("Activation code sent to your email, please check your spam folder", HttpStatus.OK);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public boolean activateCustomer(CustomerActivationRequest activationRequest) {
+        String email = activationRequest.getEmail();
+        String token = activationRequest.getActivationToken();
+        logger.info("Email: " + email + " Token: " + token);
+
+        logger.info("Activating customer with token: {}", token);
+
+        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmailAndActivationToken(email, token);
+        if (!optionalCustomer.isPresent()) {
+            logger.warn("No customer found with token: {}", token);
+            return false;
+        }
+
+        Customer customer = optionalCustomer.get();
+        logger.info("Customer found: {}", customer);
+
+        customer.setActive(true);
+        customer.setActivationToken(null);
+
+        customerRepository.save(customer);
+        logger.info("Customer activation status updated: {}", customer);
+        return true;
+    }
 }

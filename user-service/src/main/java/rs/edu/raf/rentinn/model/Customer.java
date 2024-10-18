@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,14 +27,17 @@ public class Customer extends User {
     private String gender;
 
     @Column
-    private String address;
+    private String nationality;
+
+    private String singleUseCode;
 
 //    @OneToMany(
 //            mappedBy = "customer",
 //            cascade = CascadeType.ALL,
 //            orphanRemoval = true
 //    )
-//    private List<BankAccount> accountIds;
+//    @ToString.Exclude
+//    private List<Property> properties;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -43,5 +47,4 @@ public class Customer extends User {
     )
     private Set<Permission> permissions = new HashSet<>();
 
-    private String singleUseCode;
 }

@@ -18,17 +18,9 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class Employee extends User {
 
-    @Column
-    private String position;
+//    @Column
+//    private String position;
 
-    @Column
-    private Double limitNow = 0.0;
-
-    @Column
-    private Double orderlimit;
-
-    @Column
-    private Boolean requireApproval;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

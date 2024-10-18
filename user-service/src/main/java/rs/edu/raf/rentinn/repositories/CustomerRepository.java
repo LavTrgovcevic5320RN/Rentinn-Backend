@@ -9,7 +9,9 @@ import java.util.Optional;
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Long> {
 
-    Optional<Customer> findCustomerByActivationToken(String token);
+    Optional<Customer> findByEmail(String email);
+
+    Optional<Customer> findCustomerByEmailAndActivationToken(String email, String token);
     Optional<Customer> findCustomerByEmail(String email);
     Optional<Customer> findByUserId(Long userId);
     Optional<Customer> findByResetPasswordToken(String token);

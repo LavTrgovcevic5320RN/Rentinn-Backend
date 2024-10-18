@@ -11,16 +11,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
-    @Query("select u from Employee u "
-            + "where u.active = true "
-            + "and (:email IS NULL or u.email like concat('%', concat(:email, '%'))) "
-            + "and (:firstName IS NULL or u.firstName like concat('%', concat(:firstName, '%'))) "
-            + "and (:lastName IS NULL or u.lastName like concat('%', concat(:lastName, '%'))) "
-            + "and (:position IS NULL or :position = 'All' "
-            + "or u.position like concat('%', concat(:position, '%')))")
-    Optional<List<Employee>> searchUsersByEmailAndFirstNameAndLastNameAndPosition(@Param("email") String email,
-                                                                                  @Param("firstName") String firstName,
-                                                                                  @Param("position") String position);
+//    @Query("select u from Employee u "
+//            + "where u.active = true "
+//            + "and (:email IS NULL or u.email like concat('%', concat(:email, '%'))) "
+//            + "and (:firstName IS NULL or u.firstName like concat('%', concat(:firstName, '%'))) "
+//            + "and (:lastName IS NULL or u.lastName like concat('%', concat(:lastName, '%'))) "
+//            + "and (:position IS NULL or :position = 'All' "
+//            + "or u.position like concat('%', concat(:position, '%')))")
+//    Optional<List<Employee>> searchUsersByEmailAndFirstNameAndLastNameAndPosition(@Param("email") String email,
+//                                                                                  @Param("firstName") String firstName,
+//                                                                                  @Param("position") String position);
     Optional<Employee> findByEmail(String username);
     Optional<Employee> findByActivationToken(String activationToken);
     Optional<Employee> findByResetPasswordToken(String token);

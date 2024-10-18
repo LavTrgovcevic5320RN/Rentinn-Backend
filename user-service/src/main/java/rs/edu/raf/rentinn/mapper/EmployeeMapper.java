@@ -34,10 +34,6 @@ public class EmployeeMapper {
         employeeDto.setLastName(employee.getLastName());
         employeeDto.setJmbg(employee.getJmbg());
         employeeDto.setPhoneNumber(employee.getPhoneNumber());
-        employeeDto.setPosition(employee.getPosition());
-        employeeDto.setOrderlimit(employee.getOrderlimit());
-        employeeDto.setLimitNow(employee.getLimitNow());
-        employeeDto.setRequireApproval(employee.getRequireApproval());
         employeeDto.setActive(employee.getActive());
 
         List<PermissionDto> permissionDtoList = new ArrayList<>();

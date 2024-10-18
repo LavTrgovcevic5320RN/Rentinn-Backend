@@ -16,6 +16,7 @@ import lombok.Setter;
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @MappedSuperclass
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Long userId;
@@ -54,4 +55,5 @@ public class User {
     public String toString() {
         return STR."User{userId=\{userId}, email='\{email}\{'\''}, password='\{password}\{'\''}, firstName='\{firstName}\{'\''}, lastName='\{lastName}\{'\''}, jmbg='\{jmbg}\{'\''}, phoneNumber='\{phoneNumber}\{'\''}, active=\{active}, activationToken='\{activationToken}\{'\''}, resetPasswordToken='\{resetPasswordToken}\{'\''}\{'}'}";
     }
+
 }
