@@ -10,19 +10,23 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import rs.edu.raf.rentinn.dtos.PropertyDto;
 import rs.edu.raf.rentinn.model.Property;
 import rs.edu.raf.rentinn.responses.UserResponse;
+import rs.edu.raf.rentinn.services.BookingService;
 import rs.edu.raf.rentinn.services.PropertyService;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,13 +41,38 @@ public class PropertyController {
     private final String uploadDir = "uploads/";
 
     private final PropertyService propertyService;
+    private final BookingService bookingService;
 
 
     @Autowired
-    public PropertyController(PropertyService propertyService) {
+    public PropertyController(PropertyService propertyService,
+                              BookingService bookingService) {
         this.propertyService = propertyService;
+        this.bookingService = bookingService;
     }
 
+
+    @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get all properties", description = "Get all properties")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = List.class,
+                            subTypes = {Property.class}))}),
+            @ApiResponse(responseCode = "403",
+                    description = "You aren't authorized to get all cards by account number"),
+            @ApiResponse(responseCode = "500", description = "Internal server error"),
+    })
+    public ResponseEntity<List<PropertyDto>> getAvailableProperties(
+            @RequestParam String city,
+            @RequestParam String country,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate,
+            @RequestParam int guests,
+            @RequestParam int rooms) {
+
+        List<PropertyDto> availableProperties = bookingService.findAvailableProperties(city, country, checkInDate, checkOutDate, guests, rooms);
+        return ResponseEntity.ok(availableProperties);
+    }
 
     @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "add property", description = "adds a new property",
@@ -66,26 +95,22 @@ public class PropertyController {
 
         List<String> imagePaths = new ArrayList<>();
 
-        // Create a directory for each property using its ID (create a folder for new properties)
         String propertyDir = uploadDir + "property_" + property.getId();
         Path propertyDirPath = Paths.get(propertyDir);
 
         if (!Files.exists(propertyDirPath)) {
-            Files.createDirectories(propertyDirPath);  // Create the directory if it doesn't exist
+            Files.createDirectories(propertyDirPath);
         }
 
-        // Save each image with a generated UUID as the file name
         for (MultipartFile image : images) {
-            String uniqueFilename = UUID.randomUUID() + ".jpg"; // Use a UUID for unique naming
+            String uniqueFilename = UUID.randomUUID() + ".jpg";
             Path imagePath = propertyDirPath.resolve(uniqueFilename);
-            Files.write(imagePath, image.getBytes());  // Save the image to the property folder
-            imagePaths.add(imagePath.toString());  // Store the relative path
+            Files.write(imagePath, image.getBytes());
+            imagePaths.add(imagePath.toString());
         }
 
-        // Set the image paths in the Property entity
         property.setImagePaths(imagePaths);
 
-        // Save the property with image paths
         Property savedProperty = propertyService.saveProperty(property);
 
         return ResponseEntity.ok(savedProperty);
