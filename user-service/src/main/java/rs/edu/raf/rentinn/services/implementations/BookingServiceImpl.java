@@ -25,7 +25,6 @@ public class BookingServiceImpl implements BookingService {
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
 
-    @Autowired
     public BookingServiceImpl(BookingRepository bookingRepository,
                               DailyPriceRepository dailyPriceRepository,
                               PropertyRepository propertyRepository,

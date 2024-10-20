@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import rs.edu.raf.rentinn.dtos.ReviewDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,8 +73,6 @@ public class Property {
 
     @Column
     private String checkOut;
-
-
 
     @Column
     private Integer numberOfRooms;

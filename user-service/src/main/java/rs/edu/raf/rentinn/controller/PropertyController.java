@@ -51,6 +51,21 @@ public class PropertyController {
         this.bookingService = bookingService;
     }
 
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get a property", description = "Get a property")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Successful operation",
+//                    content = {@Content(mediaType = "application/json", schema = @Schema(implementation = Property.class,
+//                            subTypes = {Property.class}))}),
+//            @ApiResponse(responseCode = "403",
+//                    description = "You aren't authorized to get all cards by account number"),
+//            @ApiResponse(responseCode = "500", description = "Internal server error"),
+//    })
+    public ResponseEntity<PropertyDto> getAvailableProperties(@PathVariable(name = "id") Long id) {
+
+        PropertyDto propertyDto = propertyService.getPropertyById(id);
+        return ResponseEntity.ok(propertyDto);
+    }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @Operation(summary = "Get all properties", description = "Get all properties")

@@ -15,8 +15,6 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyRepository propertyRepository;
     private final PropertyMapper propertyMapper;
 
-
-    @Autowired
     public PropertyServiceImpl(
             PropertyRepository propertyRepository,
             PropertyMapper propertyMapper) {
@@ -27,6 +25,11 @@ public class PropertyServiceImpl implements PropertyService {
     @Override
     public List<PropertyDto> getAllProperties() {
         return propertyRepository.findAll().stream().map(propertyMapper::propertyToPropertyDto).toList();
+    }
+
+    @Override
+    public PropertyDto getPropertyById(Long id) {
+        return propertyRepository.findById(id).map(propertyMapper::propertyToPropertyDto).orElse(null);
     }
 
     @Override

@@ -13,7 +13,7 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query("SELECT b FROM Booking b WHERE b.property.id = :propertyId AND " +
-            "(b.checkInDate <= :checkOutDate AND b.checkOutDate >= :checkInDate)")
+            "(b.checkInDate < :checkOutDate AND b.checkOutDate > :checkInDate)")
     List<Booking> findOverlappingBookings(@Param("propertyId") Long propertyId,
                                           @Param("checkInDate") LocalDate checkInDate,
                                           @Param("checkOutDate") LocalDate checkOutDate);

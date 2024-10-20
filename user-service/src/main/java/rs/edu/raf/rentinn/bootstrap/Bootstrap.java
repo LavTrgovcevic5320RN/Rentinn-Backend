@@ -64,10 +64,10 @@ public class Bootstrap implements CommandLineRunner {
 //        System.out.println("Properties seeded");
 
         Customer customer1 = new Customer();
-        customer1.setEmail("owner1@example.com");
-        customer1.setPassword(passwordEncoder.encode("Markovic01"));
-        customer1.setFirstName("John");
-        customer1.setLastName("Doe");
+        customer1.setEmail("customer@gmail.com");
+        customer1.setPassword(passwordEncoder.encode("Markovic01@"));
+        customer1.setFirstName("Marko");
+        customer1.setLastName("Markovic");
         customer1.setJmbg("1234567890123");
         customer1.setPhoneNumber("123456789");
         customer1.setActive(true);
@@ -77,8 +77,8 @@ public class Bootstrap implements CommandLineRunner {
         customerRepository.save(customer1);
 
         Customer customer2 = new Customer();
-        customer2.setEmail("owner2@example.com");
-        customer2.setPassword(passwordEncoder.encode("Markovic01"));
+        customer2.setEmail("admin@gmail.com");
+        customer2.setPassword(passwordEncoder.encode("Markovic01@"));
         customer2.setFirstName("Jane");
         customer2.setLastName("Smith");
         customer2.setJmbg("9876543210987");
@@ -91,7 +91,7 @@ public class Bootstrap implements CommandLineRunner {
 
         Customer customer3 = new Customer();
         customer3.setEmail("renter@example.com");
-        customer3.setPassword(passwordEncoder.encode("Markovic01"));
+        customer3.setPassword(passwordEncoder.encode("Markovic01@"));
         customer3.setFirstName("Alex");
         customer3.setLastName("Johnson");
         customer3.setJmbg("5647382910123");
@@ -149,7 +149,7 @@ public class Bootstrap implements CommandLineRunner {
 
         String folderName3 = "Sagara Candidasa Classic Room";
         List<String> imagePaths3 = copyImagesToUploads(folderName3);
-        property2.setImagePaths(imagePaths3);
+        property3.setImagePaths(imagePaths3);
 
         property3.setOwner(customer2);
         propertyRepository.save(property3);

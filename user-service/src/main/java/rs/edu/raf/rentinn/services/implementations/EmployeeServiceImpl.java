@@ -1,7 +1,6 @@
 package rs.edu.raf.rentinn.services.implementations;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -52,7 +51,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-//    @Cacheable(value = "findEmployeesByUsername", key="#username")
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<Employee> myEmployee = this.employeeRepository.findByEmail(username);
 
@@ -73,13 +71,11 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-//    @Cacheable(value = "getAllEmployees")
     public List<EmployeeDto> findAll() {
         return this.employeeRepository.findAll()
                 .stream()
                 .map(this.employeeMapper::employeeToEmployeeDto)
                 .toList();
     }
-
 
 }

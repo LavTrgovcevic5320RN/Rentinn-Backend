@@ -17,7 +17,14 @@ public class PropertyDto {
     private String postalCode;
     private String latitude;
     private String longitude;
+    private String description;
+    private Double rating;
+    private String checkIn;
+    private String checkOut;
+    private List<String> amenities;
+    private List<String> freebies;
     private List<String> imagePaths;
+    private List<ReviewDto> reviews;
     private List<DailyPriceDto> dailyPrices;
 
 }

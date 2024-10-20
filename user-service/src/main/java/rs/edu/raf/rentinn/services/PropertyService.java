@@ -9,6 +9,7 @@ public interface PropertyService {
 
     List<PropertyDto> getAllProperties();
 
+    PropertyDto getPropertyById(Long id);
 
     Property saveProperty(Property property);
 }

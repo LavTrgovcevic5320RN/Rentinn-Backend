@@ -6,9 +6,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,6 +21,7 @@ import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.repositories.CustomerRepository;
 import rs.edu.raf.rentinn.requests.CustomerActivationRequest;
 import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
+import rs.edu.raf.rentinn.responses.CustomerResponse;
 import rs.edu.raf.rentinn.services.CustomerService;
 import rs.edu.raf.rentinn.services.EmailService;
 import rs.edu.raf.rentinn.services.EmployeeService;
@@ -32,16 +36,12 @@ public class CustomerServiceImpl implements CustomerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    private final CustomerMapper customerMapper;
     @Value("${front.port}")
     private String frontPort;
     private final PasswordEncoder passwordEncoder;
     private final CustomerRepository customerRepository;
     private final EmployeeService userService;
-//    private final CustomerMapper customerMapper;
-//    private final CurrencyService currencyService;
-//    private final BankAccountService bankAccountService;
-//    private final CompanyService companyService;
+    private final CustomerMapper customerMapper;
     private final EmailService emailService;
 
     @Override
@@ -107,5 +107,27 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
         logger.info("Customer activation status updated: {}", customer);
         return true;
+    }
+
+    @Override
+    public CustomerResponse findByJwt() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if(authentication == null)
+            return null;
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return findByEmail(userDetails.getUsername());
+    }
+
+    @Override
+    public CustomerResponse findByEmail(String email) {
+        Customer customer = customerRepository.findCustomerByEmail(email).orElse(null);
+        if(customer == null){
+            return null;
+        }
+        CustomerResponse customerResponse = customerMapper.customerToCustomerResponse(customer);
+
+        return customerResponse;
     }
 }
