@@ -11,55 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-//import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-//import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-//import jakarta.persistence.*;
-//import lombok.Getter;
-//import lombok.Setter;
-//import lombok.ToString;
-//
-//import java.util.HashSet;
-//import java.util.List;
-//import java.util.Set;
-//
-//@Entity
-//@Getter
-//@Setter
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "userId")
-//@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-//public class Customer extends User {
-//
-//    @Column
-//    private Long dateOfBirth;
-//
-//    @Column
-//    private String gender;
-//
-//    @Column
-//    private String nationality;
-//
-//    private String singleUseCode;
-//
-////    @OneToMany(
-////            mappedBy = "customer",
-////            cascade = CascadeType.ALL,
-////            orphanRemoval = true
-////    )
-////    @ToString.Exclude
-////    private List<Property> properties;
-//
-//    @ManyToMany(fetch = FetchType.EAGER)
-//    @JoinTable(
-//            name = "user_permissions_customer",
-//            joinColumns = @JoinColumn(name = "user_id"),
-//            inverseJoinColumns = @JoinColumn(name = "permission_id")
-//    )
-//    private Set<Permission> permissions = new HashSet<>();
-//
-//}
-
 @Entity
 @Getter
 @Setter

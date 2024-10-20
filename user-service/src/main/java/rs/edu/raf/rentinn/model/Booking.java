@@ -31,5 +31,8 @@ public class Booking {
     @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
+
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    private Review review;
 }
 

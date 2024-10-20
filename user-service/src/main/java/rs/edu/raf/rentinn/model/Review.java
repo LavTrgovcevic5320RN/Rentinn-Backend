@@ -16,7 +16,7 @@ public class Review {
     private String comment;
 
     @Column
-    private int rating;
+    private Double rating;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -25,5 +25,9 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "property_id")
     private Property property;
+
+    @OneToOne
+    @JoinColumn(name = "booking_id")
+    private Booking booking;
 }
 

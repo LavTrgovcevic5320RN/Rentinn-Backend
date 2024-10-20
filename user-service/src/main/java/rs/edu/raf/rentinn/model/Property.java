@@ -1,11 +1,8 @@
 package rs.edu.raf.rentinn.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import rs.edu.raf.rentinn.dtos.ReviewDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +10,6 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-//@JsonIdentityInfo(
-//        generator = ObjectIdGenerators.PropertyGenerator.class,
-//        property = "id")
 public class Property {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

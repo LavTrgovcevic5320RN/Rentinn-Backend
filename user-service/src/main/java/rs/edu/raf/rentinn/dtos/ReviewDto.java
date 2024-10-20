@@ -8,6 +8,7 @@ import lombok.Setter;
 public class ReviewDto {
 
     private Long id;
+    private String name;
     private String comment;
-    private int rating;
+    private Double rating;
 }
