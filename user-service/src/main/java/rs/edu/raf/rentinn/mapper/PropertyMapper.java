@@ -33,6 +33,8 @@ public class PropertyMapper {
         propertyDto.setLongitude(property.getLongitude());
         propertyDto.setCheckIn(property.getCheckIn());
         propertyDto.setCheckOut(property.getCheckOut());
+        propertyDto.setDescription(property.getDescription());
+        propertyDto.setHighlights(property.getHighlights());
         propertyDto.setAmenities(property.getAmenities());
         propertyDto.setFreebies(property.getFreebies());
         propertyDto.setReviews(property.getReviews().stream().map(reviewMapper::reviewToReviewDto).toList());

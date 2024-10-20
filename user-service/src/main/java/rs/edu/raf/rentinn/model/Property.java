@@ -37,6 +37,10 @@ public class Property {
     private String longitude;
 
     @ElementCollection
+    @Column
+    private List<String> highlights;
+
+    @ElementCollection
     @Column(name = "image_paths")
     private List<String> imagePaths;
 
@@ -51,12 +55,8 @@ public class Property {
     @Column
     private Double rating;
 
-    @Column
+    @Column(length = 65555)
     private String description;
-
-    @Column
-    @ElementCollection
-    private List<String> highlights;
 
     @Column
     @ElementCollection

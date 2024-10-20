@@ -21,6 +21,7 @@ public class PropertyDto {
     private Double rating;
     private String checkIn;
     private String checkOut;
+    private List<String> highlights;
     private List<String> amenities;
     private List<String> freebies;
     private List<String> imagePaths;

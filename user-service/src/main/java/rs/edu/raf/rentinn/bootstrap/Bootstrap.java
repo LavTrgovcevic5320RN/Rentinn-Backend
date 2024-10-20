@@ -332,14 +332,12 @@ public class Bootstrap implements CommandLineRunner {
         seedPermissions();
         System.out.println("Permissions seeded");
 
-        // Create Customers
         Customer customer1 = createCustomer("customer@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA");
         Customer customer2 = createCustomer("admin@gmail.com", "Markovic01@", "Jane", "Smith", "9876543210987", "987654321", LocalDate.of(1990, 3, 22), "Female", "Canada");
         Customer customer3 = createCustomer("renter@example.com", "Markovic01@", "Alex", "Johnson", "5647382910123", "5647382910", LocalDate.of(1995, 8, 15), "Non-binary", "UK");
 
         System.out.println("Customers seeded");
 
-        // Create Properties
         Property property1 = createProperty("Riviera Superior", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Superior Sweet Sea Front", customer1);
         Property property2 = createProperty("Riviera Deluxe", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Deluxe Suite Sea Front", customer1);
         Property property3 = createProperty("Sagara Candidasa Classic", "Indonesia", "Bali", "Candidasa", "80851", "-8.5100184", "115.5704357", "Sagara Candidasa Classic Room", customer2);
@@ -351,7 +349,6 @@ public class Bootstrap implements CommandLineRunner {
 
         System.out.println("Properties seeded");
 
-        // Generate daily prices for each property
         generateDailyPricesForYear(property1);
         generateDailyPricesForYear(property2);
         generateDailyPricesForYear(property3);
@@ -363,7 +360,6 @@ public class Bootstrap implements CommandLineRunner {
 
         System.out.println("Daily prices seeded");
 
-        // Create 21 Bookings (3x as many)
         Booking booking1 = createBooking(LocalDate.of(2024, 10, 18), LocalDate.of(2024, 10, 20), customer3, property1);
         Booking booking2 = createBooking(LocalDate.of(2024, 11, 5), LocalDate.of(2024, 11, 10), customer3, property3);
         Booking booking3 = createBooking(LocalDate.of(2024, 12, 15), LocalDate.of(2024, 12, 20), customer2, property4);
@@ -388,7 +384,6 @@ public class Bootstrap implements CommandLineRunner {
 
         System.out.println("Bookings seeded");
 
-        // Create 21 Reviews (3x as many)
         createReview("Amazing stay at the Riviera Superior!", 5.0, customer3, property1, booking1);
         createReview("Very cozy place, but could improve the internet speed.", 4.2, customer3, property3, booking2);
         createReview("Loved the view from Cosmopolitan Apartment. Great amenities!", 4.8, customer2, property4, booking3);
@@ -430,6 +425,26 @@ public class Bootstrap implements CommandLineRunner {
         return customer;
     }
 
+    private static final List<String> ALL_AMENITIES = Arrays.asList(
+            "24hr front desk", "air-conditioned", "fitness", "pool", "sauna", "spa", "bar", "restaurant", "wi-fi", "pet-friendly",
+            "family rooms", "room service", "concierge service", "laundry service", "fitness center", "non-smoking rooms",
+            "outdoor pool", "indoor pool", "business center", "conference rooms", "meeting facilities", "breakfast buffet",
+            "private beach", "hot tub", "massage", "all-inclusive", "casino", "airport transfer", "elevator", "balcony/terrace",
+            "kitchenette"
+    );
+
+    private List<String> getRandomAmenities() {
+        Random random = new Random();
+        Set<String> selectedAmenities = new HashSet<>();
+
+        while (selectedAmenities.size() < 8) {
+            String randomAmenity = ALL_AMENITIES.get(random.nextInt(ALL_AMENITIES.size()));
+            selectedAmenities.add(randomAmenity);
+        }
+
+        return new ArrayList<>(selectedAmenities);
+    }
+
     private Property createProperty(String title, String country, String city, String address, String postalCode, String latitude, String longitude, String folderName, Customer owner) throws IOException {
         Property property = new Property();
         property.setTitle(title);
@@ -439,8 +454,18 @@ public class Bootstrap implements CommandLineRunner {
         property.setPostalCode(postalCode);
         property.setLatitude(latitude);
         property.setLongitude(longitude);
+        property.setAmenities(getRandomAmenities());
+
         property.setCheckIn("14:00");
         property.setCheckOut("10:00");
+        property.setHighlights(Arrays.asList("Beachfront", "Free WiFi", "Terrace", "Garden", "Private beach area"));
+        property.setDescription("Located in the heart of Chania Old Town, Riviera Superior offers a luxurious stay with stunning sea views. The property features a private beach area, a garden, and a terrace. Free WiFi is available throughout the property.\n" +
+                "\n" +
+                "All rooms are air-conditioned and come with a flat-screen TV, a kettle, a shower, a hairdryer, and a desk. The rooms also feature a wardrobe and a private bathroom.\n" +
+                "\n" +
+                "Guests at Riviera Superior can enjoy a continental or a buffet breakfast.\n" +
+                "\n" +
+                "Popular points of interest near the accommodation include Koum Kapi Beach, Nea Chora Beach, and Golden Beach. The nearest airport is Chania International Airport, 14 km from Riviera Superior.");
 
         List<String> imagePaths = copyImagesToUploads(folderName);
         property.setImagePaths(imagePaths);
@@ -476,7 +501,6 @@ public class Bootstrap implements CommandLineRunner {
         reviewRepository.save(review);
         return review;
     }
-
 
 
     private void generateDailyPricesForYear(Property property) {
