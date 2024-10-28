@@ -15,6 +15,7 @@ import java.io.IOException;
 
 public class TokenInterceptor implements ClientHttpRequestInterceptor {
     private final JwtUtil jwtUtil;
+
     public TokenInterceptor(final JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }

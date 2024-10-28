@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +22,7 @@ import java.util.Set;
 public class Customer extends User {
 
     @Column
-    private Long dateOfBirth;
+    private LocalDate dateOfBirth;
 
     @Column
     private String gender;
@@ -31,6 +32,9 @@ public class Customer extends User {
 
     private String singleUseCode;
 
+    @ElementCollection
+    @Column(name = "favorite_properties")
+    private List<Long> favoriteProperties = new ArrayList<>();
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     private List<Property> properties = new ArrayList<>();

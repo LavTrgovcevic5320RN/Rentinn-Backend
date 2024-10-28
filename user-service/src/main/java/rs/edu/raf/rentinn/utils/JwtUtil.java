@@ -52,7 +52,18 @@ public class JwtUtil {
                 .setClaims(claims)
                 .setSubject(email)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + Constants.JWT_EXPIRATION_LENGTH))
+                .setExpiration(new Date(System.currentTimeMillis() + Constants.JWT_EXPIRATION_LENGTH ))
+                .signWith(SignatureAlgorithm.HS512, secretKey).compact();
+    }
+
+    public String generateToken(String email, List<String> permissions, boolean rememberMe) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("roles", permissions);
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(email)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + (rememberMe ? Constants.JWT_EXPIRATION_LENGTH_REMEMBER_ME : Constants.JWT_EXPIRATION_LENGTH)))
                 .signWith(SignatureAlgorithm.HS512, secretKey).compact();
     }
 

@@ -7,6 +7,7 @@ import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.model.Property;
 import rs.edu.raf.rentinn.repositories.PermissionRepository;
 import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
+import rs.edu.raf.rentinn.requests.EditCustomerRequest;
 import rs.edu.raf.rentinn.responses.CustomerResponse;
 
 import java.util.ArrayList;
@@ -47,6 +48,10 @@ public class CustomerMapper {
         customerResponse.setFirstName(customer.getFirstName());
         customerResponse.setLastName(customer.getLastName());
         customerResponse.setEmail(customer.getEmail());
+        customerResponse.setPhoneNumber(customer.getPhoneNumber());
+        customerResponse.setDateOfBirth(customer.getDateOfBirth());
+        customerResponse.setAddress(customer.getAddress());
+        customerResponse.setFavoriteProperties(customer.getFavoriteProperties());
         customerResponse.setPermissions(customer.getPermissions()
                 .stream()
                 .map(permissionMapper::permissionToPermissionDto)
@@ -64,6 +69,29 @@ public class CustomerMapper {
         }
 
         return customerResponse;
+    }
+
+    public Customer editCustomerRequestToCustomer(Customer customer, EditCustomerRequest editCustomerRequest) {
+        if(editCustomerRequest.getFirstName() != null)
+            customer.setFirstName(editCustomerRequest.getFirstName());
+
+        if(editCustomerRequest.getLastName() != null)
+            customer.setLastName(editCustomerRequest.getLastName());
+
+        if(editCustomerRequest.getEmail() != null)
+            customer.setEmail(editCustomerRequest.getEmail());
+
+        if (editCustomerRequest.getPassword() != null)
+
+            customer.setPassword(passwordEncoder.encode(editCustomerRequest.getPassword()));
+
+        if (editCustomerRequest.getPhoneNumber() != null)
+            customer.setPhoneNumber(editCustomerRequest.getPhoneNumber());
+
+         if (editCustomerRequest.getDateOfBirth() != null)
+            customer.setDateOfBirth(editCustomerRequest.getDateOfBirth());
+
+        return customer;
     }
 
 

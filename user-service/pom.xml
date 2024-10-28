@@ -156,11 +156,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>rs.edu.raf.rentinn</groupId>
-            <artifactId>renting-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>20.120.0</version>
         </dependency>
+
+
 
     </dependencies>
 

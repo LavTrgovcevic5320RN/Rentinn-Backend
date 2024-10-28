@@ -1,5 +1,6 @@
 package rs.edu.raf.rentinn.bootstrap;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -332,16 +333,17 @@ public class Bootstrap implements CommandLineRunner {
         seedPermissions();
         System.out.println("Permissions seeded");
 
-        Customer customer1 = createCustomer("customer@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA");
-        Customer customer2 = createCustomer("admin@gmail.com", "Markovic01@", "Jane", "Smith", "9876543210987", "987654321", LocalDate.of(1990, 3, 22), "Female", "Canada");
-        Customer customer3 = createCustomer("renter@example.com", "Markovic01@", "Alex", "Johnson", "5647382910123", "5647382910", LocalDate.of(1995, 8, 15), "Non-binary", "UK");
+        Customer customer1 = createCustomer("customer@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123");
+        Customer customer2 = createCustomer("admin@gmail.com", "Markovic01@", "Jane", "Smith", "9876543210987", "987654321", LocalDate.of(1990, 3, 22), "Female", "Canada", "Kentacky, 123");
+        Customer customer3 = createCustomer("renter@example.com", "Markovic01@", "Alex", "Johnson", "5647382910123", "5647382910", LocalDate.of(1995, 8, 15), "Non-binary", "UK", "London, 456");
+        Customer customer4 = createCustomer("marko@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890136", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123");
 
         System.out.println("Customers seeded");
 
         Property property1 = createProperty("Riviera Superior", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Superior Sweet Sea Front", customer1);
         Property property2 = createProperty("Riviera Deluxe", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Deluxe Suite Sea Front", customer1);
         Property property3 = createProperty("Sagara Candidasa Classic", "Indonesia", "Bali", "Candidasa", "80851", "-8.5100184", "115.5704357", "Sagara Candidasa Classic Room", customer2);
-        Property property4 = createProperty("Cosmopolitan Apartment", "Indonesia", "Jakarta", "Jl. Sudirman", "10220", "-6.200000", "106.816666", "Cosmopolitan Apartment", customer3);
+        Property property4 = createProperty("Cosmopolitan Apartment", "Serbia", "Belgrade", "Skadarska", "11000", "-6.200000", "106.816666", "Cosmopolitan Apartment", customer3);
         Property property5 = createProperty("Genggong Villa", "Indonesia", "Bali", "Padang Bai", "80871", "-8.533333", "115.516667", "Genggong", customer3);
         Property property6 = createProperty("Riviera Classic Suite Sea View", "Greece", "Crete", "Heraklion", "71409", "35.339841", "25.144213", "Riviera Classic Suite Sea View", customer1);
         Property property7 = createProperty("Riviera Executive Suite Sea View", "Greece", "Crete", "Rethymno", "74100", "35.366", "24.483", "Riviera Executive Suite Sea View", customer2);
@@ -349,14 +351,22 @@ public class Bootstrap implements CommandLineRunner {
 
         System.out.println("Properties seeded");
 
-        generateDailyPricesForYear(property1);
-        generateDailyPricesForYear(property2);
-        generateDailyPricesForYear(property3);
-        generateDailyPricesForYear(property4);
-        generateDailyPricesForYear(property5);
-        generateDailyPricesForYear(property6);
-        generateDailyPricesForYear(property7);
-        generateDailyPricesForYear(property8);
+        generateDailyPricesForYear(property1, 2024);
+        generateDailyPricesForYear(property1, 2025);
+        generateDailyPricesForYear(property2, 2024);
+        generateDailyPricesForYear(property2, 2025);
+        generateDailyPricesForYear(property3, 2024);
+        generateDailyPricesForYear(property3, 2025);
+        generateDailyPricesForYear(property4, 2024);
+        generateDailyPricesForYear(property4, 2025);
+        generateDailyPricesForYear(property5, 2024);
+        generateDailyPricesForYear(property5, 2025);
+        generateDailyPricesForYear(property6, 2024);
+        generateDailyPricesForYear(property6, 2025);
+        generateDailyPricesForYear(property7, 2024);
+        generateDailyPricesForYear(property7, 2025);
+        generateDailyPricesForYear(property8, 2024);
+        generateDailyPricesForYear(property8, 2025);
 
         System.out.println("Daily prices seeded");
 
@@ -409,7 +419,11 @@ public class Bootstrap implements CommandLineRunner {
         System.out.println("Reviews seeded");
     }
 
-    private Customer createCustomer(String email, String password, String firstName, String lastName, String jmbg, String phoneNumber, LocalDate dateOfBirth, String gender, String nationality) {
+    private Customer createCustomer(String email, String password,
+                                    String firstName, String lastName,
+                                    String jmbg, String phoneNumber,
+                                    LocalDate dateOfBirth, String gender,
+                                    String nationality, String address) {
         Customer customer = new Customer();
         customer.setEmail(email);
         customer.setPassword(passwordEncoder.encode(password));
@@ -418,10 +432,17 @@ public class Bootstrap implements CommandLineRunner {
         customer.setJmbg(jmbg);
         customer.setPhoneNumber(phoneNumber);
         customer.setActive(true);
-        customer.setDateOfBirth(dateOfBirth.toEpochDay());
+        customer.setDateOfBirth(dateOfBirth);
         customer.setGender(gender);
         customer.setNationality(nationality);
-        customerRepository.save(customer);
+        customer.setAddress(address);
+        customer.setPermissions(new HashSet<>(getPermissionForRenter()));
+        if (customerRepository.findByEmail(customer.getEmail()).isEmpty()) {
+            customerRepository.save(customer);
+        }else {
+            customer = customerRepository.findByEmail(customer.getEmail()).get();
+        }
+//        customerRepository.save(customer);
         return customer;
     }
 
@@ -445,7 +466,25 @@ public class Bootstrap implements CommandLineRunner {
         return new ArrayList<>(selectedAmenities);
     }
 
-    private Property createProperty(String title, String country, String city, String address, String postalCode, String latitude, String longitude, String folderName, Customer owner) throws IOException {
+    private List<Permission> getPermissionForRenter(){
+        try{
+            List<Permission> resultList = new ArrayList<>();
+            for(String s : Constants.userPermissions.get(Constants.RENTER)){
+                Optional<Permission> p = permissionRepository.findByName(s);
+                if(p.isPresent()) {
+                    resultList.add(p.get());
+                }
+            }
+
+            return resultList;
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>();
+    }
+
+    protected Property createProperty(String title, String country, String city, String address, String postalCode, String latitude, String longitude, String folderName, Customer owner) throws IOException {
         Property property = new Property();
         property.setTitle(title);
         property.setCountry(country);
@@ -503,10 +542,10 @@ public class Bootstrap implements CommandLineRunner {
     }
 
 
-    private void generateDailyPricesForYear(Property property) {
+    private void generateDailyPricesForYear(Property property, Integer year) {
         Random random = new Random();
-        LocalDate startDate = LocalDate.of(2024, 1, 1);
-        LocalDate endDate = LocalDate.of(2024, 12, 31);
+        LocalDate startDate = LocalDate.of(year, 1, 1);
+        LocalDate endDate = LocalDate.of(year, 12, 31);
 
         LocalDate currentDate = startDate;
         while (!currentDate.isAfter(endDate)) {

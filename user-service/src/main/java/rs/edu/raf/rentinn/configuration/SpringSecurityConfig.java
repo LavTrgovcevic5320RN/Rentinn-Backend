@@ -3,6 +3,7 @@ package rs.edu.raf.rentinn.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,32 +39,77 @@ public class SpringSecurityConfig {
     private final CustomerService customerService;
     private final JwtFilter jwtFilter;
 
+//    @Bean
+//    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManagerBuilder auth) throws Exception {
+//        http
+//                .authorizeHttpRequests((authz) ->
+//                                authz
+////                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+//                                        .requestMatchers(antMatcher("/auth/**"),
+//                                                antMatcher("/swagger-ui.html"),
+//                                                antMatcher("/swagger-ui/**"),
+//                                                antMatcher("/v3/api-docs/**"),
+//                                                antMatcher("/planning/")).permitAll()
+//                                        .requestMatchers(antMatcher("/user/activate/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/permission/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/employee/activate/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/employee/newpassword/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/employee/reset/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/customer/initialActivation")).permitAll()
+//                                        .requestMatchers(antMatcher("/customer/activate/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/customer/newpassword/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/customer/reset/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/customer/get/**")).permitAll()
+//                                        .requestMatchers(antMatcher("/uploads/**")).permitAll()
+//                                        .requestMatchers(antMatcher( HttpMethod.PATCH,"/customer")).permitAll()
+//
+//                                        .anyRequest().authenticated()
+//
+//                )
+////                .cors().configurationSource(corsConfigurationSource())
+//
+//                .cors(cors -> cors.configurationSource(request -> {
+//                    CorsConfiguration configuration = new CorsConfiguration();
+//                    configuration.setAllowedOrigins(Arrays.asList("*"));
+//                    configuration.setAllowedMethods(Arrays.asList("*"));
+//                    configuration.setAllowedHeaders(Arrays.asList("*"));
+//                    return configuration;
+//                }))
+//                .csrf(AbstractHttpConfigurer::disable)
+////            .csrf()
+//                .sessionManagement((session) ->
+//                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//                )
+//                .addFilterBefore(this.jwtFilter, UsernamePasswordAuthenticationFilter.class);
+//
+//        return http.build();
+//    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManagerBuilder auth) throws Exception {
         http
                 .authorizeHttpRequests((authz) ->
-                                authz
-//                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                                        .requestMatchers(antMatcher("/auth/**"),
-                                                antMatcher("/swagger-ui.html"),
-                                                antMatcher("/swagger-ui/**"),
-                                                antMatcher("/v3/api-docs/**"),
-                                                antMatcher("/planning/")).permitAll()
-                                        .requestMatchers(antMatcher("/user/activate/**")).permitAll()
-                                        .requestMatchers(antMatcher("/permission/**")).permitAll()
-                                        .requestMatchers(antMatcher("/employee/activate/**")).permitAll()
-                                        .requestMatchers(antMatcher("/employee/newpassword/**")).permitAll()
-                                        .requestMatchers(antMatcher("/employee/reset/**")).permitAll()
-                                        .requestMatchers(antMatcher("/customer/initialActivation")).permitAll()
-                                        .requestMatchers(antMatcher("/customer/activate/**")).permitAll()
-                                        .requestMatchers(antMatcher("/customer/newpassword/**")).permitAll()
-                                        .requestMatchers(antMatcher("/customer/reset/**")).permitAll()
-                                        .requestMatchers(antMatcher("/uploads/**")).permitAll()
-                                        .anyRequest().authenticated()
-
+                        authz
+                                .requestMatchers(antMatcher("/auth/**"),
+                                        antMatcher("/swagger-ui.html"),
+                                        antMatcher("/swagger-ui/**"),
+                                        antMatcher("/v3/api-docs/**"),
+                                        antMatcher("/planning/")).permitAll()
+                                .requestMatchers(antMatcher("/user/activate/**")).permitAll()
+                                .requestMatchers(antMatcher("/permission/**")).permitAll()
+                                .requestMatchers(antMatcher("/employee/activate/**")).permitAll()
+                                .requestMatchers(antMatcher("/employee/newpassword/**")).permitAll()
+                                .requestMatchers(antMatcher("/employee/reset/**")).permitAll()
+                                .requestMatchers(antMatcher("/customer/initialActivation")).permitAll()
+                                .requestMatchers(antMatcher("/customer/activate/**")).permitAll()
+                                .requestMatchers(antMatcher("/customer/newpassword/**")).permitAll()
+                                .requestMatchers(antMatcher("/customer/reset/**")).permitAll()
+                                .requestMatchers(antMatcher("/customer/get/**")).permitAll()
+                                .requestMatchers(antMatcher("/uploads/**")).permitAll()
+                                .requestMatchers(antMatcher(HttpMethod.PATCH, "/customer")).permitAll()
+                                .requestMatchers(antMatcher("/booking/webhook")).permitAll() // Allow access to the Stripe webhook endpoint
+                                .anyRequest().authenticated()
                 )
-//                .cors().configurationSource(corsConfigurationSource())
-
                 .cors(cors -> cors.configurationSource(request -> {
                     CorsConfiguration configuration = new CorsConfiguration();
                     configuration.setAllowedOrigins(Arrays.asList("*"));
@@ -72,7 +118,6 @@ public class SpringSecurityConfig {
                     return configuration;
                 }))
                 .csrf(AbstractHttpConfigurer::disable)
-//            .csrf()
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
@@ -80,6 +125,7 @@ public class SpringSecurityConfig {
 
         return http.build();
     }
+
 
     @Autowired
     public SpringSecurityConfig(EmployeeService employeeService,

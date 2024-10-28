@@ -36,32 +36,30 @@ public class AuthenticationService {
         }
 
         return new LoginResponse(
-                jwtUtil.generateToken(loginRequest.getEmail(), permissions),
+                jwtUtil.generateToken(loginRequest.getEmail(), permissions, loginRequest.isRememberMe()),
                 permissionSet.stream().map(Permission::getName).collect(Collectors.toList())
         );
     }
 
-    public CustomerRegistrationResponse generateRegisterResponse(CustomerCreationRequest creationRequest) {
-
-        return new CustomerRegistrationResponse(
-                "Account created successfully and activation email sent to " + creationRequest.getEmail(),
-                HttpStatus.OK,
-                jwtUtil.generateToken(creationRequest.getEmail(), Constants.renterPermissions),
-                Constants.renterPermissions
-        );
-    }
+//    public CustomerRegistrationResponse generateRegisterResponse(CustomerCreationRequest creationRequest) {
+//
+//        return new CustomerRegistrationResponse(
+//                "Account created successfully and activation email sent to " + creationRequest.getEmail(),
+//                HttpStatus.OK,
+//                jwtUtil.generateToken(creationRequest.getEmail(), Constants.renterPermissions),
+//                Constants.renterPermissions
+//        );
+//    }
 
     public boolean activateAccount(CustomerActivationRequest activationRequest) {
-
-
         return true;
     }
 
-    public LoginResponse generateLoginResponse(LoginRequest loginRequest) {
-        return new LoginResponse(
-                jwtUtil.generateToken(loginRequest.getEmail(), new ArrayList<>()),
-                new ArrayList<>());
-    }
+//    public LoginResponse generateLoginResponse(LoginRequest loginRequest) {
+//        return new LoginResponse(
+//                jwtUtil.generateToken(loginRequest.getEmail(), new ArrayList<>()),
+//                new ArrayList<>());
+//    }
 
     private String extractEmail(Object user){
         if(user instanceof Employee)

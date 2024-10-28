@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerCreationRequest {
-
     private String firstName;
 
     private String lastName;
@@ -22,7 +23,7 @@ public class CustomerCreationRequest {
 
     private String gender;
 
-    private Long dateOfBirth;
+    private LocalDate dateOfBirth;
 
     private String nationality;
 

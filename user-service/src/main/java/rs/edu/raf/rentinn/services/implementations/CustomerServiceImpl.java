@@ -21,6 +21,8 @@ import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.repositories.CustomerRepository;
 import rs.edu.raf.rentinn.requests.CustomerActivationRequest;
 import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
+import rs.edu.raf.rentinn.requests.EditCustomerRequest;
+import rs.edu.raf.rentinn.requests.EditFavoritePropertyRequest;
 import rs.edu.raf.rentinn.responses.CustomerResponse;
 import rs.edu.raf.rentinn.services.CustomerService;
 import rs.edu.raf.rentinn.services.EmailService;
@@ -31,7 +33,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
@@ -43,6 +44,14 @@ public class CustomerServiceImpl implements CustomerService {
     private final EmployeeService userService;
     private final CustomerMapper customerMapper;
     private final EmailService emailService;
+
+    public CustomerServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, EmployeeService userService, CustomerMapper customerMapper, EmailService emailService) {
+        this.passwordEncoder = passwordEncoder;
+        this.customerRepository = customerRepository;
+        this.userService = userService;
+        this.customerMapper = customerMapper;
+        this.emailService = emailService;
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -116,7 +125,14 @@ public class CustomerServiceImpl implements CustomerService {
         if(authentication == null)
             return null;
 
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Object principal = authentication.getPrincipal();
+        if (!(principal instanceof UserDetails)) {
+            logger.warn("Principal is not an instance of UserDetails");
+            return null;
+        }
+
+        UserDetails userDetails = (UserDetails) principal;
+
         return findByEmail(userDetails.getUsername());
     }
 
@@ -129,5 +145,38 @@ public class CustomerServiceImpl implements CustomerService {
         CustomerResponse customerResponse = customerMapper.customerToCustomerResponse(customer);
 
         return customerResponse;
+    }
+
+    @Override
+    public boolean editCustomer(EditCustomerRequest editCustomerRequest) {
+        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmail(editCustomerRequest.getEmail());
+
+        if (optionalCustomer.isEmpty())
+            return false;
+
+        Customer newCustomer = customerMapper.editCustomerRequestToCustomer(optionalCustomer.get(), editCustomerRequest);
+        customerRepository.save(newCustomer);
+        return true;
+    }
+
+    @Override
+    public boolean editFavoriteProperties(EditFavoritePropertyRequest editFavoritePropertyRequest) {
+        Optional<Customer> optionalCustomer = customerRepository.findByUserId(editFavoritePropertyRequest.getCustomerId());
+
+        if (optionalCustomer.isEmpty())
+            return false;
+
+        Customer customer = optionalCustomer.get();
+//        if(!customer.getFavoriteProperties().contains(editFavoritePropertyRequest.getPropertyId())){
+
+            if(editFavoritePropertyRequest.isFavorite()) {
+                customer.getFavoriteProperties().add(editFavoritePropertyRequest.getPropertyId());
+            } else {
+                customer.getFavoriteProperties().remove(editFavoritePropertyRequest.getPropertyId());
+            }
+//        }
+
+        customerRepository.save(customer);
+        return true;
     }
 }

@@ -5,7 +5,10 @@ import lombok.Setter;
 import rs.edu.raf.rentinn.dtos.PermissionDto;
 import rs.edu.raf.rentinn.dtos.PropertyDto;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -16,11 +19,13 @@ public class CustomerResponse {
     private String email;
     private String firstName;
     private String lastName;
+    private String phoneNumber;
+    private String address;
+    private LocalDate dateOfBirth;
+
+    private List<Long> favoriteProperties;
     private List<PermissionDto> permissions;
     private List<PropertyDto> properties;
-//    private Long dateOfBirth;
-//    private String gender;
-//    private String address;
 
     @Override
     public boolean equals(Object o) {

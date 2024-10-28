@@ -120,26 +120,26 @@ public class AuthenticationController {
         }
     }
 
-    @PostMapping("/register")
-    @Operation(summary = "Customer wants to register", description = "Returns response if customer is successfully created" +
-            "Also sends email to customer with activation link.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Customer activation",
-                    content = {@Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CustomerRegistrationResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Internal server error"),
-            @ApiResponse(responseCode = "400", description = "Bad request")
-    })
-    public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest customerCreationRequest) {
-        boolean response = customerService.registerCustomer(customerCreationRequest);
-        if (!response) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User with the same email already exists");
-        }
-
-        CustomerRegistrationResponse customerRegistrationResponse = this.authenticationService.generateRegisterResponse(customerCreationRequest);
-
-        return ResponseEntity.ok(customerRegistrationResponse);
-    }
+//    @PostMapping("/register")
+//    @Operation(summary = "Customer wants to register", description = "Returns response if customer is successfully created" +
+//            "Also sends email to customer with activation link.")
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "200", description = "Customer activation",
+//                    content = {@Content(mediaType = "application/json",
+//                            schema = @Schema(implementation = CustomerRegistrationResponse.class))}),
+//            @ApiResponse(responseCode = "500", description = "Internal server error"),
+//            @ApiResponse(responseCode = "400", description = "Bad request")
+//    })
+//    public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest customerCreationRequest) {
+//        boolean response = customerService.registerCustomer(customerCreationRequest);
+//        if (!response) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User with the same email already exists");
+//        }
+//
+//        CustomerRegistrationResponse customerRegistrationResponse = this.authenticationService.generateRegisterResponse(customerCreationRequest);
+//
+//        return ResponseEntity.ok(customerRegistrationResponse);
+//    }
 
 
     @PostMapping("/activateAccount")

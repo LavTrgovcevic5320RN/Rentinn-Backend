@@ -42,6 +42,9 @@ public class User {
     @Column
     private String phoneNumber;
 
+    @Column
+    private String address;
+
     @Column(nullable = false)
     private Boolean active;
 

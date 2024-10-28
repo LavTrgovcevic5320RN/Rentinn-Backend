@@ -4,6 +4,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import rs.edu.raf.rentinn.services.implementations.CustomerServiceImpl;
 import rs.edu.raf.rentinn.utils.Constants;
 import rs.edu.raf.rentinn.utils.JwtUtil;
 
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
+    private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
     @Autowired
     public JwtFilter(JwtUtil jwtUtil) {
@@ -56,8 +60,15 @@ public class JwtFilter extends OncePerRequestFilter {
                 usernamePasswordAuthenticationToken
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
+                logger.debug("Setting authentication for user: {}", email);
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+            } else {
+                logger.warn("Invalid JWT token for user: {}", email);
             }
+
+        } else {
+            logger.warn("JWT token is missing or user is already authenticated");
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
