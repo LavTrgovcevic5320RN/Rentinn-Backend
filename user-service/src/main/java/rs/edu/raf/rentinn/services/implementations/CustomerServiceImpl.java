@@ -33,16 +33,14 @@ public class CustomerServiceImpl implements CustomerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    private final PasswordEncoder passwordEncoder;
     private final CustomerRepository customerRepository;
-    private final EmployeeService userService;
     private final CustomerMapper customerMapper;
     private final EmailService emailService;
 
-    public CustomerServiceImpl(PasswordEncoder passwordEncoder, CustomerRepository customerRepository, EmployeeService userService, CustomerMapper customerMapper, EmailService emailService) {
-        this.passwordEncoder = passwordEncoder;
+    public CustomerServiceImpl(CustomerRepository customerRepository,
+                               CustomerMapper customerMapper,
+                               EmailService emailService) {
         this.customerRepository = customerRepository;
-        this.userService = userService;
         this.customerMapper = customerMapper;
         this.emailService = emailService;
     }
@@ -97,50 +95,6 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
         return false;
     }
-
-
-//    @Override
-//    public void registerCustomer(CustomerCreationRequest creationRequest) {
-//        Optional<Customer> optionalCustomer = this.customerRepository.findCustomerByEmail(creationRequest.getEmail());
-//        if (optionalCustomer.isPresent()) {
-//            return;
-////            return new CustomerRegistrationResponse("User with the same email already exists", HttpStatus.BAD_REQUEST);
-//        }
-//
-//        Customer customer = customerMapper.createNewCustomer(creationRequest);
-//        customer = customerRepository.save(customer);
-//
-//        String sendTo = customer.getEmail();
-//        String subject = "Account activation";
-//        String text = "Your activation code: " + customer.getActivationToken();
-//        emailService.sendEmail(sendTo, subject, text);
-////        return new CustomerRegistrationResponse("Activation code sent to your email, please check your spam folder", HttpStatus.OK);
-//    }
-
-//    @Override
-//    @Transactional
-//    public boolean activateCustomer(CustomerActivationRequest activationRequest) {
-//        String email = activationRequest.getEmail();
-//        String token = activationRequest.getActivationToken();
-//        logger.info("Email: " + email + " Token: " + token);
-//        logger.info("Activating customer with token: {}", token);
-//
-//        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmailAndActivationToken(email, token);
-//        if (!optionalCustomer.isPresent()) {
-//            logger.warn("No customer found with token: {}", token);
-//            return false;
-//        }
-//
-//        Customer customer = optionalCustomer.get();
-//        logger.info("Customer found: {}", customer);
-//
-//        customer.setActive(true);
-//        customer.setActivationToken(null);
-//
-//        customerRepository.save(customer);
-//        logger.info("Customer activation status updated: {}", customer);
-//        return true;
-//    }
 
 
     @Override

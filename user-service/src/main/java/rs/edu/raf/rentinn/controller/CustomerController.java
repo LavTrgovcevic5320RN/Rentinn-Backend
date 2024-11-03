@@ -39,7 +39,7 @@ public class CustomerController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful operation",
                     content = {@Content(mediaType = "application/json"
-//                            , schema = @Schema(implementation = CustomerResponse.class)
+                            , schema = @Schema(implementation = CustomerResponse.class)
                     )
             }),
             @ApiResponse(responseCode = "404", description = "User not found"),

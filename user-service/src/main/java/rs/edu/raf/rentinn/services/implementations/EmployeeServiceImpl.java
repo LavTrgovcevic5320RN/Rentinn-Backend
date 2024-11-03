@@ -28,7 +28,6 @@ public class EmployeeServiceImpl implements EmployeeService {
     private PermissionMapper permissionMapper;
     private EmployeeRepository employeeRepository;
     private PermissionRepository permissionRepository;
-//    private EmailService emailService;
     private JwtUtil jwtUtil;
     private PasswordEncoder passwordEncoder;
 
@@ -37,7 +36,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             PermissionMapper permissionMapper,
             EmployeeRepository employeeRepository,
             PermissionRepository permissionRepository,
-//            EmailService emailService,
             JwtUtil jwtUtil,
             PasswordEncoder passwordEncoder
     ){
@@ -45,7 +43,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         this.permissionMapper = permissionMapper;
         this.employeeRepository = employeeRepository;
         this.permissionRepository = permissionRepository;
-//        this.emailService = emailService;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
     }

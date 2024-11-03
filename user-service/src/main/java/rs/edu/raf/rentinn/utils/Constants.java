@@ -7,9 +7,8 @@ import java.util.Map;
 
 public class Constants {
     public static final Integer BEARER_PREFIX_SIZE = 7;
-//    public static final Long JWT_EXPIRATION_LENGTH = 1000L * 60 * 60 * 10;
-    public static final Long JWT_EXPIRATION_LENGTH_REMEMBER_ME = 1000L * 60 * 60 * 24 * 10; // 10 days
     public static final Long JWT_EXPIRATION_LENGTH = 1000L * 60 * 60 * 24; // 24 hours
+    public static final Long JWT_EXPIRATION_LENGTH_REMEMBER_ME = 1000L * 60 * 60 * 24 * 10; // 10 days
 
     public static final Long SINGLE_USE_CODE_EXPIRATION_LENGTH = 1000L * 60 * 5;
     public static final String ADMIN = "admin";

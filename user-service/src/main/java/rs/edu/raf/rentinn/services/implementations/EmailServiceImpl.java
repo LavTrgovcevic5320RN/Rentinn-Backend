@@ -18,7 +18,6 @@ public class EmailServiceImpl implements EmailService {
     public Boolean sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
 //        message.setFrom("noreply.rentinn@gmail.com");
-        message.setFrom("noreply.rafbanka1@gmail.com");
         message.setTo(to);
         message.setSubject(subject);
         message.setText(body);

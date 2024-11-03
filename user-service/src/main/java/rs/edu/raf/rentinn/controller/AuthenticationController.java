@@ -26,9 +26,11 @@ import rs.edu.raf.rentinn.repositories.EmployeeRepository;
 import rs.edu.raf.rentinn.requests.CustomerActivationRequest;
 import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
 import rs.edu.raf.rentinn.requests.LoginRequest;
+import rs.edu.raf.rentinn.requests.RegistrationRequest;
 import rs.edu.raf.rentinn.responses.CustomerActivationResponse;
 import rs.edu.raf.rentinn.responses.CustomerRegistrationResponse;
 import rs.edu.raf.rentinn.responses.LoginResponse;
+import rs.edu.raf.rentinn.responses.RegistrationResponse;
 import rs.edu.raf.rentinn.services.AuthenticationService;
 import rs.edu.raf.rentinn.services.CustomerService;
 
@@ -122,7 +124,7 @@ public class AuthenticationController {
         }
     }
 
-    @PostMapping("/register")
+/*    @PostMapping("/register")
     public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest request) {
         try {
             customerService.registerCustomer(request);
@@ -140,29 +142,63 @@ public class AuthenticationController {
         } catch (InvalidTokenException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid activation token.");
         }
+    }*/
+
+    @PostMapping("/register")
+    @Operation(summary = "User registration", description = "Create a new customer without an activation token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Customer created successfully",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = Customer.class))}),
+            @ApiResponse(responseCode = "400", description = "Bad request",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<?> registerCustomer(@RequestBody @Valid RegistrationRequest registrationRequest) {
+        try{
+            if (customerRepository.findCustomerByEmail(registrationRequest.getEmail()).isPresent()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Email is already in use");
+            }
+
+            Customer customer = new Customer();
+            customer.setFirstName(registrationRequest.getFirstName());
+            customer.setLastName(registrationRequest.getLastName());
+            customer.setEmail(registrationRequest.getEmail());
+            customer.setPhoneNumber(registrationRequest.getPhoneNumber());
+            customer.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+            customer.setActive(true);
+
+            customerRepository.save(customer);
+
+            RegistrationResponse registrationResponse = this.authenticationService.generateRegisterResponse(registrationRequest, customer);
+
+            return ResponseEntity.ok(registrationResponse);
+        }  catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
+        }
     }
 
 
-//    @PostMapping("/register")
-//    @Operation(summary = "Customer wants to register", description = "Returns response if customer is successfully created" +
-//            "Also sends email to customer with activation link.")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Customer activation",
-//                    content = {@Content(mediaType = "application/json",
-//                            schema = @Schema(implementation = CustomerRegistrationResponse.class))}),
-//            @ApiResponse(responseCode = "500", description = "Internal server error"),
-//            @ApiResponse(responseCode = "400", description = "Bad request")
-//    })
-//    public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest customerCreationRequest) {
-//        boolean response = customerService.registerCustomer(customerCreationRequest);
-//        if (!response) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User with the same email already exists");
-//        }
-//
-//        CustomerRegistrationResponse customerRegistrationResponse = this.authenticationService.generateRegisterResponse(customerCreationRequest);
-//
-//        return ResponseEntity.ok(customerRegistrationResponse);
-//    }
+/*    @PostMapping("/register")
+    @Operation(summary = "Customer wants to register", description = "Returns response if customer is successfully created" +
+            "Also sends email to customer with activation link.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Customer activation",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = CustomerRegistrationResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Internal server error"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
+    public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest customerCreationRequest) {
+        boolean response = customerService.registerCustomer(customerCreationRequest);
+        if (!response) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User with the same email already exists");
+        }
+
+        CustomerRegistrationResponse customerRegistrationResponse = this.authenticationService.generateRegisterResponse(customerCreationRequest);
+
+        return ResponseEntity.ok(customerRegistrationResponse);
+    }*/
 
 
     @PostMapping("/activateAccount")

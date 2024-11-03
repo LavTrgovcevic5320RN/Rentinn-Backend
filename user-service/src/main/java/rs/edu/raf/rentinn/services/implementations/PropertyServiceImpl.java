@@ -92,7 +92,6 @@ public class PropertyServiceImpl implements PropertyService {
             Path imagePath = propertyDirPath.resolve(uniqueFilename);
             Files.write(imagePath, image.getBytes());
 
-            // Construct the URL using forward slashes
             String imageUrl = "/uploads/" + request.getTitle().replace(" ", "%20") + "/" + uniqueFilename;
             imagePaths.add(imageUrl);
         }

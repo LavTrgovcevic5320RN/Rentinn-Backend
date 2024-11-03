@@ -125,7 +125,6 @@ public class BookingController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-//    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody CreateSessionRequest request) {
         try {
             Long amount = request.getTotalPrice().longValue();
