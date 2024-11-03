@@ -394,7 +394,7 @@ public class Bootstrap implements CommandLineRunner {
 
         System.out.println("Bookings seeded");
 
-        createReview("Amazing stay at the Riviera Superior!", 5.0, customer3, property1, booking1);
+//        createReview("Amazing stay at the Riviera Superior!", 5.0, customer3, property1, booking1);
         createReview("Very cozy place, but could improve the internet speed.", 4.2, customer3, property3, booking2);
         createReview("Loved the view from Cosmopolitan Apartment. Great amenities!", 4.8, customer2, property4, booking3);
         createReview("Quiet and peaceful place, perfect for a retreat!", 4.7, customer1, property5, booking4);

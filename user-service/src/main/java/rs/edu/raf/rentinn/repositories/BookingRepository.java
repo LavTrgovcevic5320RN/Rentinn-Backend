@@ -28,4 +28,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Transactional
     @Query("SELECT b FROM Booking b WHERE b.customer.userId = :userId")
     List<Booking> findByUserId(Long userId);
+
+    @Query("SELECT b FROM Booking b WHERE b.property.id = :propertyId AND b.customer.userId = :userId")
+    List<Booking> findBookingsByPropertyIdAndUserId(@Param("propertyId") Long propertyId, @Param("userId") Long userId);
+
 }

@@ -45,8 +45,8 @@ public class CustomerController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public ResponseEntity<CustomerResponse> readCustomerByJWT() {
-        CustomerResponse customerResponse = this.customerService.findByJwt();
+    public ResponseEntity<CustomerResponse> fetchCustomerByJwt() {
+        CustomerResponse customerResponse = this.customerService.fetchCustomerByJwt();
 
         if (customerResponse == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);

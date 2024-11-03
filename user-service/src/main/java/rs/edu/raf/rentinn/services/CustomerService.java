@@ -1,6 +1,7 @@
 package rs.edu.raf.rentinn.services;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.requests.CustomerActivationRequest;
 import rs.edu.raf.rentinn.requests.CustomerCreationRequest;
 import rs.edu.raf.rentinn.requests.EditCustomerRequest;
@@ -9,13 +10,15 @@ import rs.edu.raf.rentinn.responses.CustomerResponse;
 
 public interface CustomerService extends UserDetailsService {
 
-    boolean registerCustomer(CustomerCreationRequest creationRequest);
+    void registerCustomer(CustomerCreationRequest creationRequest);
 
     boolean activateCustomer(CustomerActivationRequest activationRequest);
 
-    CustomerResponse findByJwt();
+    CustomerResponse fetchCustomerByJwt();
 
-    CustomerResponse findByEmail(String email);
+    Customer findByJwt();
+
+    Customer findByEmail(String email);
 
     boolean editCustomer(EditCustomerRequest editCustomerRequest);
 

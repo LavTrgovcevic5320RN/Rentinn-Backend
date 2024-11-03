@@ -17,7 +17,9 @@ import rs.edu.raf.rentinn.repositories.CustomerRepository;
 import rs.edu.raf.rentinn.repositories.DailyPriceRepository;
 import rs.edu.raf.rentinn.repositories.PropertyRepository;
 import rs.edu.raf.rentinn.requests.CreateBookingRequest;
+import rs.edu.raf.rentinn.responses.DetailedResponse;
 import rs.edu.raf.rentinn.services.BookingService;
+import rs.edu.raf.rentinn.services.CustomerService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -33,19 +35,22 @@ public class BookingServiceImpl implements BookingService {
     private final CustomerRepository customerRepository;
     private final PropertyMapper propertyMapper;
     private final BookingMapper bookingMapper;
+    private final CustomerService customerService;
 
     public BookingServiceImpl(BookingRepository bookingRepository,
                               DailyPriceRepository dailyPriceRepository,
                               PropertyRepository propertyRepository,
                               CustomerRepository customerRepository,
                               PropertyMapper propertyMapper,
-                              BookingMapper bookingMapper) {
+                              BookingMapper bookingMapper,
+                              CustomerService customerService) {
         this.bookingRepository = bookingRepository;
         this.dailyPriceRepository = dailyPriceRepository;
         this.propertyRepository = propertyRepository;
         this.customerRepository = customerRepository;
         this.propertyMapper = propertyMapper;
         this.bookingMapper = bookingMapper;
+        this.customerService = customerService;
     }
 
     public List<PropertyDto> findAvailableProperties(String location, LocalDate checkInDate, LocalDate checkOutDate, int guests, int rooms) {
@@ -68,34 +73,16 @@ public class BookingServiceImpl implements BookingService {
                 .map(propertyMapper::propertyToPropertyDto).toList();
     }
 
-    private boolean isPropertyAvailable(Property property, LocalDate checkInDate, LocalDate checkOutDate) {
-        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(property.getId(), checkInDate, checkOutDate);
-        return overlappingBookings.isEmpty();
-    }
-
-    public boolean isOwnerOfProperty(Customer customer, Property property) {
-        return customer.getProperties().contains(property);
-    }
-
-    public boolean isBookingAvailable(Long propertyId, LocalDate checkInDate, LocalDate checkOutDate) {
-        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(propertyId, checkInDate, checkOutDate);
-        return overlappingBookings.isEmpty();
-    }
 
     public List<BookingDto> getBookingsByProperty(Long propertyId) {
         return bookingRepository.findByPropertyId(propertyId).stream().map(bookingMapper::bookingToBookingDto).toList();
     }
 
-    public double calculateTotalPrice(Long propertyId, LocalDate checkInDate, LocalDate checkOutDate) {
-        List<DailyPrice> prices = dailyPriceRepository.findPricesByDateRange(propertyId, checkInDate, checkOutDate);
 
-        double totalPrice = 0;
-        for (DailyPrice price : prices) {
-            totalPrice += price.getPrice();
-        }
-
-        return totalPrice;
+    public List<BookingDto> getBookingsByUserId(Long userId) {
+        return bookingRepository.findByUserId(userId).stream().map(bookingMapper::bookingToBookingDto).toList();
     }
+
 
     public Booking createBooking(Booking booking) {
         Customer customer = booking.getCustomer();
@@ -115,47 +102,34 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
-    public List<BookingDto> getBookingsByUserId(Long userId) {
-        return bookingRepository.findByUserId(userId).stream().map(bookingMapper::bookingToBookingDto).toList();
+
+    private boolean isPropertyAvailable(Property property, LocalDate checkInDate, LocalDate checkOutDate) {
+        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(property.getId(), checkInDate, checkOutDate);
+        return overlappingBookings.isEmpty();
     }
 
-    public void confirmBooking(CreateBookingRequest request) {
-        try {
-            Session session = Session.retrieve(request.getSessionId());
 
-            if ("complete".equals(session.getPaymentStatus())) {
-                Customer customer = customerRepository.findById(request.getUserId())
-                        .orElseThrow(() -> new RuntimeException("Customer not found"));
-                Property property = propertyRepository.findById(request.getPropertyId())
-                        .orElseThrow(() -> new RuntimeException("Property not found"));
+    public boolean isBookingAvailable(Long propertyId, LocalDate checkInDate, LocalDate checkOutDate) {
+        List<Booking> overlappingBookings = bookingRepository.findOverlappingBookings(propertyId, checkInDate, checkOutDate);
+        return overlappingBookings.isEmpty();
+    }
 
 
-                if (isOwnerOfProperty(customer, property)) {
-                    throw new IllegalArgumentException("You cannot book your own property.");
-                }
-
-                if (!isBookingAvailable(property.getId(), request.getCheckInDate(), request.getCheckOutDate())) {
-                    throw new IllegalArgumentException("The property is already booked for the selected dates.");
-                }
-                Booking booking = new Booking();
-//                double totalPrice = calculateTotalPrice(property.getId(), request.getCheckInDate(), request.getCheckOutDate());
-//                booking.setTotalPrice(totalPrice);
+    public boolean isOwnerOfProperty(Customer customer, Property property) {
+        return customer.getProperties().contains(property);
+    }
 
 
-                booking.setCustomer(customer);
-                booking.setProperty(property);
-//                booking.setStripeSessionId(request.getSessionId());
-                booking.setTotalPrice(Double.valueOf(session.getAmountTotal()));
-                bookingRepository.save(booking);
+    public double calculateTotalPrice(Long propertyId, LocalDate checkInDate, LocalDate checkOutDate) {
+        List<DailyPrice> prices = dailyPriceRepository.findPricesByDateRange(propertyId, checkInDate, checkOutDate);
 
-            } else {
-                throw new RuntimeException("Payment not completed.");
-            }
-        } catch (StripeException e) {
-            throw new RuntimeException("Error verifying payment: " + e.getMessage());
+        double totalPrice = 0;
+        for (DailyPrice price : prices) {
+            totalPrice += price.getPrice();
         }
-    }
 
+        return totalPrice;
+    }
 
 
     public void finalizeBookingFromSession(Session session) {
@@ -192,4 +166,24 @@ public class BookingServiceImpl implements BookingService {
             throw new RuntimeException("Error finalizing booking: " + e.getMessage());
         }
     }
+
+
+    @Override
+    public DetailedResponse canLeaveReview(Long propertyId, Long userId) {
+        List<Booking> bookings = bookingRepository.findBookingsByPropertyIdAndUserId(propertyId, userId);
+
+        if (bookings.isEmpty()) {
+            return new DetailedResponse(false, "You don't have any previous bookings on this property.");
+        }
+
+        for (Booking booking : bookings) {
+            if (booking.getCheckOutDate().isBefore(LocalDate.now()) && booking.getReview() == null) {
+                return new DetailedResponse(true, "You can leave a review.");
+            }
+        }
+
+        return new DetailedResponse(false, "You can only leave a review after your stay is completed.");
+    }
+
+
 }

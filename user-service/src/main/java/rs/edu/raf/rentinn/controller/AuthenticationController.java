@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import rs.edu.raf.rentinn.exceptions.EmailAlreadyExistsException;
+import rs.edu.raf.rentinn.exceptions.InvalidTokenException;
 import rs.edu.raf.rentinn.mapper.CustomerMapper;
 import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.model.Employee;
@@ -119,6 +121,27 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed: " + e.getMessage());
         }
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> registerCustomer(@RequestBody CustomerCreationRequest request) {
+        try {
+            customerService.registerCustomer(request);
+            return ResponseEntity.ok("Customer created successfully. Check your email for the activation token.");
+        } catch (EmailAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Email already taken.");
+        }
+    }
+
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateCustomer(@RequestBody CustomerActivationRequest activationRequest) {
+        try {
+            customerService.activateCustomer(activationRequest);
+            return ResponseEntity.ok("Account activated successfully.");
+        } catch (InvalidTokenException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid activation token.");
+        }
+    }
+
 
 //    @PostMapping("/register")
 //    @Operation(summary = "Customer wants to register", description = "Returns response if customer is successfully created" +

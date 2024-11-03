@@ -22,12 +22,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import rs.edu.raf.rentinn.dtos.BookingDto;
 import rs.edu.raf.rentinn.model.Booking;
+import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.requests.CreateBookingRequest;
 import rs.edu.raf.rentinn.requests.CreateSessionRequest;
+import rs.edu.raf.rentinn.responses.DetailedResponse;
 import rs.edu.raf.rentinn.services.BookingService;
+import rs.edu.raf.rentinn.services.CustomerService;
 import rs.edu.raf.rentinn.services.implementations.CustomerServiceImpl;
 
 import java.time.LocalDate;
@@ -42,12 +46,15 @@ public class BookingController {
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     private final BookingService bookingService;
+    private final CustomerService customerService;
 
     @Autowired
-    public BookingController(BookingService bookingService) {
+    public BookingController(BookingService bookingService, CustomerService customerService) {
         this.bookingService = bookingService;
+        this.customerService = customerService;
         Stripe.apiKey = "sk_test_51QDVkpGoH2c3s2KOHw1RnnrJEX1kU0yDrleviek8iXKlERvGITcCSmhB4pk5Suvbpqj7pqkMx6ONazYdDenFhcax00azyS5oOl";
     }
+
 
     @GetMapping("/availability")
     public ResponseEntity<Boolean> checkAvailability(@RequestParam Long propertyId,
@@ -57,10 +64,12 @@ public class BookingController {
         return ResponseEntity.ok(isAvailable);
     }
 
+
     @GetMapping("/booked-dates/{propertyId}")
     public List<BookingDto> getBookingsByProperty(@PathVariable Long propertyId) {
         return bookingService.getBookingsByProperty(propertyId);
     }
+
 
     @PostMapping
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
@@ -68,19 +77,20 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(newBooking);
     }
 
+
     @GetMapping("/calculateTotalPrice")
-    public ResponseEntity<Double> calculateTotalPrice(@RequestParam Long propertyId,
-                                                      @RequestParam LocalDate checkInDate,
-                                                      @RequestParam LocalDate checkOutDate) {
+    public ResponseEntity<Double> calculateTotalPrice(@RequestParam Long propertyId, @RequestParam LocalDate checkInDate, @RequestParam LocalDate checkOutDate) {
         double totalPrice = bookingService.calculateTotalPrice(propertyId, checkInDate, checkOutDate);
         return ResponseEntity.ok(totalPrice);
     }
+
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<BookingDto>> getBookingsByUserId(@PathVariable Long userId) {
         List<BookingDto> bookings = bookingService.getBookingsByUserId(userId);
         return ResponseEntity.ok(bookings);
     }
+
 
     @PostMapping("/webhook")
     public ResponseEntity<String> handleStripeWebhook(@RequestBody String payload, @RequestHeader("Stripe-Signature") String sigHeader) {
@@ -105,19 +115,17 @@ public class BookingController {
 
 
     @PostMapping(value = "/initialise-stripe", produces = MediaType.APPLICATION_JSON_VALUE)
-//    @Operation(summary = "Get customer by jwt", description = "Returns customer by jwt",
-//            parameters = {
-//                    @Parameter(name = "Authorization", description = "JWT token", required = true, in = ParameterIn.HEADER)
-//            })
+    @Operation(summary = "Get customer by jwt", description = "Returns customer by jwt",
+            parameters = {
+                    @Parameter(name = "Authorization", description = "JWT token", required = true, in = ParameterIn.HEADER)
+            })
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful operation",
-                    content = {@Content(mediaType = "application/json"
-//                            , schema = @Schema(implementation = CustomerResponse.class)
-                    )
-                    }),
+                    content = {@Content(mediaType = "application/json")}),
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
+//    @PreAuthorize("hasRole('ROLE_USER')")
     public ResponseEntity<Map<String, String>> createCheckoutSession(@RequestBody CreateSessionRequest request) {
         try {
             Long amount = request.getTotalPrice().longValue();
@@ -159,6 +167,26 @@ public class BookingController {
         } catch (StripeException e) {
             return ResponseEntity.status(500).body(Map.of("error", e.getMessage()));
         }
+    }
+
+
+    @GetMapping(value = "/can-leave-review/{propertyId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Get customer by jwt", description = "Returns customer by jwt",
+            parameters = {
+                    @Parameter(name = "Authorization", description = "JWT token", required = true, in = ParameterIn.HEADER)
+            })
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successful operation",
+                    content = {@Content(mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    public ResponseEntity<?> canLeaveReview(@PathVariable Long propertyId) {
+        Customer customer = this.customerService.findByJwt();
+
+        DetailedResponse canLeaveReview = bookingService.canLeaveReview(propertyId, customer.getUserId());
+
+        return ResponseEntity.ok(canLeaveReview);
     }
 
 }

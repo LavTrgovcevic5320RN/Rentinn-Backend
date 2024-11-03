@@ -106,6 +106,8 @@ public class SpringSecurityConfig {
                                 .requestMatchers(antMatcher("/customer/reset/**")).permitAll()
                                 .requestMatchers(antMatcher("/customer/get/**")).permitAll()
                                 .requestMatchers(antMatcher("/uploads/**")).permitAll()
+                                .requestMatchers(antMatcher("/property/all/**")).permitAll()
+                                .requestMatchers(antMatcher("/property/{id}")).permitAll()
                                 .requestMatchers(antMatcher(HttpMethod.PATCH, "/customer")).permitAll()
                                 .requestMatchers(antMatcher("/booking/webhook")).permitAll() // Allow access to the Stripe webhook endpoint
                                 .anyRequest().authenticated()

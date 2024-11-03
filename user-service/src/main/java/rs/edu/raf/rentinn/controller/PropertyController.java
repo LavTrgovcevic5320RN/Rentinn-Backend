@@ -87,48 +87,6 @@ public class PropertyController {
         return ResponseEntity.ok(availableProperties);
     }
 
-//    @PostMapping(value = "/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @Operation(summary = "add property", description = "adds a new property",
-//            parameters = {
-//                    @Parameter(name = "Authorization", description = "JWT token", required = true, in = ParameterIn.HEADER)
-//            })
-////    @PreAuthorize("hasAuthority('readUser')")
-//    @ApiResponses({
-//            @ApiResponse(responseCode = "200", description = "Successful operation",
-//                    content = {@Content(mediaType = "multipart/form-data",
-//                            schema = @Schema(implementation = List.class,
-//                                    subTypes = {Property.class}))}),
-//            @ApiResponse(responseCode = "500", description = "Internal server error")
-//    })
-//    public ResponseEntity<Property> createProperty(
-//            @RequestPart("property") Property property,
-//            @RequestPart("images") List<MultipartFile> images) throws IOException {
-//
-//        System.out.println("USAO");
-//
-//        List<String> imagePaths = new ArrayList<>();
-//
-//        String propertyDir = uploadDir + "property_" + property.getId();
-//        Path propertyDirPath = Paths.get(propertyDir);
-//
-//        if (!Files.exists(propertyDirPath)) {
-//            Files.createDirectories(propertyDirPath);
-//        }
-//
-//        for (MultipartFile image : images) {
-//            String uniqueFilename = UUID.randomUUID() + ".jpg";
-//            Path imagePath = propertyDirPath.resolve(uniqueFilename);
-//            Files.write(imagePath, image.getBytes());
-//            imagePaths.add(imagePath.toString());
-//        }
-//
-//        property.setImagePaths(imagePaths);
-//
-//        Property savedProperty = propertyService.saveProperty(property);
-//
-//        return ResponseEntity.ok(savedProperty);
-//    }
-
 
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @ApiResponses({

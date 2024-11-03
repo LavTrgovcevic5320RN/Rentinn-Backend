@@ -1,14 +1,7 @@
 package rs.edu.raf.rentinn.services.implementations;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import rs.edu.raf.rentinn.exceptions.EmailAlreadyExistsException;
+import rs.edu.raf.rentinn.exceptions.InvalidTokenException;
 import rs.edu.raf.rentinn.mapper.CustomerMapper;
 import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.repositories.CustomerRepository;
@@ -30,6 +25,7 @@ import rs.edu.raf.rentinn.services.EmployeeService;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,8 +33,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomerServiceImpl.class);
 
-    @Value("${front.port}")
-    private String frontPort;
     private final PasswordEncoder passwordEncoder;
     private final CustomerRepository customerRepository;
     private final EmployeeService userService;
@@ -52,6 +46,7 @@ public class CustomerServiceImpl implements CustomerService {
         this.customerMapper = customerMapper;
         this.emailService = emailService;
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -73,79 +68,113 @@ public class CustomerServiceImpl implements CustomerService {
                 authorities);
     }
 
-    @Override
-    public boolean registerCustomer(CustomerCreationRequest creationRequest) {
-        Optional<Customer> optionalCustomer = this.customerRepository.findCustomerByEmail(creationRequest.getEmail());
-        if (optionalCustomer.isPresent()) {
-            return false;
-//            return new CustomerRegistrationResponse("User with the same email already exists", HttpStatus.BAD_REQUEST);
+
+    public void registerCustomer(CustomerCreationRequest creationRequest) {
+        if (customerRepository.findByEmail(creationRequest.getEmail()).isPresent()) {
+            throw new EmailAlreadyExistsException("Email already taken.");
         }
 
         Customer customer = customerMapper.createNewCustomer(creationRequest);
         customer = customerRepository.save(customer);
 
+        String activationLink = "http://localhost:4200/activate?token=" + customer.getActivationToken();
         String sendTo = customer.getEmail();
         String subject = "Account activation";
-        String text = "Your activation code: " + customer.getActivationToken();
+        String text = "Please use the following token to activate your account: " + customer.getActivationToken() + "\n" + "Or click the link: " + activationLink;
         emailService.sendEmail(sendTo, subject, text);
-//        return new CustomerRegistrationResponse("Activation code sent to your email, please check your spam folder", HttpStatus.OK);
-        return true;
     }
 
-    @Override
-    @Transactional
+
     public boolean activateCustomer(CustomerActivationRequest activationRequest) {
-        String email = activationRequest.getEmail();
-        String token = activationRequest.getActivationToken();
-        logger.info("Email: " + email + " Token: " + token);
-
-        logger.info("Activating customer with token: {}", token);
-
-        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmailAndActivationToken(email, token);
-        if (!optionalCustomer.isPresent()) {
-            logger.warn("No customer found with token: {}", token);
-            return false;
+        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmailAndActivationToken(activationRequest.getEmail(), activationRequest.getActivationToken());
+        if (optionalCustomer.isEmpty()) {
+            throw new InvalidTokenException("Invalid activation token.");
         }
 
         Customer customer = optionalCustomer.get();
-        logger.info("Customer found: {}", customer);
-
         customer.setActive(true);
-        customer.setActivationToken(null);
-
+        customer.setActivationToken(null); // Clear the token after activation
         customerRepository.save(customer);
-        logger.info("Customer activation status updated: {}", customer);
-        return true;
+        return false;
     }
 
+
+//    @Override
+//    public void registerCustomer(CustomerCreationRequest creationRequest) {
+//        Optional<Customer> optionalCustomer = this.customerRepository.findCustomerByEmail(creationRequest.getEmail());
+//        if (optionalCustomer.isPresent()) {
+//            return;
+////            return new CustomerRegistrationResponse("User with the same email already exists", HttpStatus.BAD_REQUEST);
+//        }
+//
+//        Customer customer = customerMapper.createNewCustomer(creationRequest);
+//        customer = customerRepository.save(customer);
+//
+//        String sendTo = customer.getEmail();
+//        String subject = "Account activation";
+//        String text = "Your activation code: " + customer.getActivationToken();
+//        emailService.sendEmail(sendTo, subject, text);
+////        return new CustomerRegistrationResponse("Activation code sent to your email, please check your spam folder", HttpStatus.OK);
+//    }
+
+//    @Override
+//    @Transactional
+//    public boolean activateCustomer(CustomerActivationRequest activationRequest) {
+//        String email = activationRequest.getEmail();
+//        String token = activationRequest.getActivationToken();
+//        logger.info("Email: " + email + " Token: " + token);
+//        logger.info("Activating customer with token: {}", token);
+//
+//        Optional<Customer> optionalCustomer = customerRepository.findCustomerByEmailAndActivationToken(email, token);
+//        if (!optionalCustomer.isPresent()) {
+//            logger.warn("No customer found with token: {}", token);
+//            return false;
+//        }
+//
+//        Customer customer = optionalCustomer.get();
+//        logger.info("Customer found: {}", customer);
+//
+//        customer.setActive(true);
+//        customer.setActivationToken(null);
+//
+//        customerRepository.save(customer);
+//        logger.info("Customer activation status updated: {}", customer);
+//        return true;
+//    }
+
+
     @Override
-    public CustomerResponse findByJwt() {
+    public CustomerResponse fetchCustomerByJwt() {
+        Customer customer = findByJwt();
+        if (customer == null) {
+            return null;
+        }
+        return customerMapper.customerToCustomerResponse(customer);
+    }
+
+
+    @Override
+    public Customer findByJwt() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if(authentication == null)
             return null;
 
         Object principal = authentication.getPrincipal();
-        if (!(principal instanceof UserDetails)) {
+        if (!(principal instanceof UserDetails userDetails)) {
             logger.warn("Principal is not an instance of UserDetails");
             return null;
         }
 
-        UserDetails userDetails = (UserDetails) principal;
-
         return findByEmail(userDetails.getUsername());
     }
 
-    @Override
-    public CustomerResponse findByEmail(String email) {
-        Customer customer = customerRepository.findCustomerByEmail(email).orElse(null);
-        if(customer == null){
-            return null;
-        }
-        CustomerResponse customerResponse = customerMapper.customerToCustomerResponse(customer);
 
-        return customerResponse;
+    @Override
+    public Customer findByEmail(String email) {
+        return customerRepository.findCustomerByEmail(email).orElse(null);
     }
+
 
     @Override
     public boolean editCustomer(EditCustomerRequest editCustomerRequest) {
@@ -158,6 +187,7 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(newCustomer);
         return true;
     }
+
 
     @Override
     public boolean editFavoriteProperties(EditFavoritePropertyRequest editFavoritePropertyRequest) {
@@ -179,4 +209,5 @@ public class CustomerServiceImpl implements CustomerService {
         customerRepository.save(customer);
         return true;
     }
+
 }

@@ -33,9 +33,9 @@ public class CustomerMapper {
         customer.setLastName(createCustomerRequest.getLastName());
         customer.setEmail(createCustomerRequest.getEmail());
         customer.setPassword(passwordEncoder.encode(createCustomerRequest.getPassword()));
-        customer.setGender(createCustomerRequest.getGender());
-        customer.setDateOfBirth(createCustomerRequest.getDateOfBirth());
-        customer.setNationality(createCustomerRequest.getNationality());
+//        customer.setGender(createCustomerRequest.getGender());
+//        customer.setDateOfBirth(createCustomerRequest.getDateOfBirth());
+//        customer.setNationality(createCustomerRequest.getNationality());
         customer.setPhoneNumber(createCustomerRequest.getPhoneNumber());
         customer.setActive(false);
         customer.setActivationToken(UUID.randomUUID().toString());
