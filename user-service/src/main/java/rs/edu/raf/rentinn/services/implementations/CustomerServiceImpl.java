@@ -151,14 +151,12 @@ public class CustomerServiceImpl implements CustomerService {
             return false;
 
         Customer customer = optionalCustomer.get();
-//        if(!customer.getFavoriteProperties().contains(editFavoritePropertyRequest.getPropertyId())){
 
-            if(editFavoritePropertyRequest.isFavorite()) {
-                customer.getFavoriteProperties().add(editFavoritePropertyRequest.getPropertyId());
-            } else {
-                customer.getFavoriteProperties().remove(editFavoritePropertyRequest.getPropertyId());
-            }
-//        }
+        if(editFavoritePropertyRequest.isFavorite()) {
+            customer.getFavoriteProperties().add(editFavoritePropertyRequest.getPropertyId());
+        } else {
+            customer.getFavoriteProperties().remove(editFavoritePropertyRequest.getPropertyId());
+        }
 
         customerRepository.save(customer);
         return true;

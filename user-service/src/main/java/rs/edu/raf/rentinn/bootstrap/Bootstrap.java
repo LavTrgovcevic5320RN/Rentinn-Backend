@@ -55,10 +55,12 @@ public class Bootstrap implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        long startTime = System.currentTimeMillis();
+
         seedPermissions();
         System.out.println("Permissions seeded");
 
-        Customer customer1 = createCustomer("customer@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123");
+        Customer customer1 = createCustomer("customer@gmail.com", "Markovic01@", "Lav", "Trgovcevic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123");
         Customer customer2 = createCustomer("admin@gmail.com", "Markovic01@", "Jane", "Smith", "9876543210987", "987654321", LocalDate.of(1990, 3, 22), "Female", "Canada", "Kentacky, 123");
         Customer customer3 = createCustomer("renter@example.com", "Markovic01@", "Alex", "Johnson", "5647382910123", "5647382910", LocalDate.of(1995, 8, 15), "Non-binary", "UK", "London, 456");
         Customer customer4 = createCustomer("marko@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890136", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123");
@@ -142,6 +144,9 @@ public class Bootstrap implements CommandLineRunner {
         createReview("The villa was beautiful and private, perfect for a romantic getaway.", 4.8, customer3, property5, booking21);
 
         System.out.println("Reviews seeded");
+
+        long endTime = System.currentTimeMillis();
+        System.out.println("Total execution time: " + (endTime - startTime) + " ms");
     }
 
     private Customer createCustomer(String email, String password,
@@ -266,7 +271,6 @@ public class Bootstrap implements CommandLineRunner {
         return review;
     }
 
-
     private void generateDailyPricesForYear(Property property, Integer year) {
         Random random = new Random();
         LocalDate startDate = LocalDate.of(year, 1, 1);
@@ -323,6 +327,8 @@ public class Bootstrap implements CommandLineRunner {
         return uploadedImagePaths;
     }
 
+
+
     private void seedPermissions() {
         for(String s : Constants.allPermissions) {
             if(permissionRepository.findByName(s).isPresent()) {
@@ -336,35 +342,281 @@ public class Bootstrap implements CommandLineRunner {
         }
     }
 
-    private Employee generateEmployee(final String email, final String password, final String firstName, final String lastName, final String position, final Boolean active){
-        Employee employee = new Employee();
-        employee.setEmail(email);
-        employee.setPassword(passwordEncoder.encode(password));
-        employee.setFirstName(firstName);
-        employee.setLastName(lastName);
-        employee.setActive(active);
-        employee.setPermissions(new HashSet<>(permissionRepository.findAll()));
-        if (employeeRepository.findByEmail(employee.getEmail()).isEmpty()) {
-            employeeRepository.save(employee);
-        }else {
-            employee = employeeRepository.findByEmail(employee.getEmail()).get();
-        }
-        return employee;
-    }
-
-    private Customer generateCustomer(final String email, final String password, final String firstName, final String lastName, final String position, final Boolean active){
-        Customer customer = new Customer();
-        customer.setEmail(email);
-        customer.setPassword(passwordEncoder.encode(password));
-        customer.setFirstName(firstName);
-        customer.setLastName(lastName);
-        customer.setActive(active);
-        customer.setPermissions(new HashSet<>(permissionRepository.findAll()));
-        if (customerRepository.findByEmail(customer.getEmail()).isEmpty()) {
-            customerRepository.save(customer);
-        }else {
-            customer = customerRepository.findByEmail(customer.getEmail()).get();
-        }
-        return customer;
-    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//package rs.edu.raf.rentinn.bootstrap;
+//
+//import jakarta.transaction.Transactional;
+//import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.boot.CommandLineRunner;
+//import org.springframework.security.crypto.password.PasswordEncoder;
+//import org.springframework.stereotype.Component;
+//import rs.edu.raf.rentinn.model.*;
+//import rs.edu.raf.rentinn.repositories.*;
+//import rs.edu.raf.rentinn.utils.Constants;
+//
+//import java.io.IOException;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
+//import java.nio.file.Paths;
+//import java.nio.file.StandardCopyOption;
+//import java.time.LocalDate;
+//import java.util.*;
+//import java.util.stream.Collectors;
+//import java.util.stream.Stream;
+//
+//@Component
+//public class Bootstrap implements CommandLineRunner {
+//
+//    private final PermissionRepository permissionRepository;
+//    private final PasswordEncoder passwordEncoder;
+//    private final EmployeeRepository employeeRepository;
+//    private final CustomerRepository customerRepository;
+//    private final PropertyRepository propertyRepository;
+//    private final DailyPriceRepository dailyPriceRepository;
+//    private final BookingRepository bookingRepository;
+//    private final ReviewRepository reviewRepository;
+//
+//    private final String imagesDir = "images/";
+//    private final String uploadsDir = "uploads/";
+//
+//    @Autowired
+//    public Bootstrap(
+//            PermissionRepository permissionRepository,
+//            PasswordEncoder passwordEncoder,
+//            EmployeeRepository employeeRepository,
+//            CustomerRepository customerRepository,
+//            PropertyRepository propertyRepository,
+//            DailyPriceRepository dailyPriceRepository,
+//            BookingRepository bookingRepository,
+//            ReviewRepository reviewRepository) {
+//        this.permissionRepository = permissionRepository;
+//        this.passwordEncoder = passwordEncoder;
+//        this.employeeRepository = employeeRepository;
+//        this.customerRepository = customerRepository;
+//        this.propertyRepository = propertyRepository;
+//        this.dailyPriceRepository = dailyPriceRepository;
+//        this.bookingRepository = bookingRepository;
+//        this.reviewRepository = reviewRepository;
+//    }
+//
+//    @Override
+//    public void run(String... args) throws Exception {
+//        long startTime = System.currentTimeMillis();
+//
+//        seedPermissions();
+//        System.out.println("Permissions seeded");
+//
+//        List<Customer> customers = Arrays.asList(
+//                createOrUpdateCustomer("customer@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890123", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123"),
+//                createOrUpdateCustomer("admin@gmail.com", "Markovic01@", "Jane", "Smith", "9876543210987", "987654321", LocalDate.of(1990, 3, 22), "Female", "Canada", "Kentucky, 123"),
+//                createOrUpdateCustomer("renter@example.com", "Markovic01@", "Alex", "Johnson", "5647382910123", "5647382910", LocalDate.of(1995, 8, 15), "Non-binary", "UK", "London, 456"),
+//                createOrUpdateCustomer("marko@gmail.com", "Markovic01@", "Marko", "Markovic", "1234567890136", "123456789", LocalDate.of(1985, 5, 10), "Male", "USA", "New York, 123")
+//        );
+//
+//        System.out.println("Customers seeded");
+//
+//        List<Property> properties = Arrays.asList(
+//                createProperty("Riviera Superior", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Superior Sweet Sea Front", customers.get(0)),
+//                createProperty("Riviera Deluxe", "Greece", "Crete", "Chania Old Town", "73132", "35.5184506", "24.0226517", "Riviera Deluxe Suite Sea Front", customers.get(0)),
+//                createProperty("Sagara Candidasa Classic", "Indonesia", "Bali", "Candidasa", "80851", "-8.5100184", "115.5704357", "Sagara Candidasa Classic Room", customers.get(1)),
+//                createProperty("Cosmopolitan Apartment", "Serbia", "Belgrade", "Skadarska", "11000", "-6.200000", "106.816666", "Cosmopolitan Apartment", customers.get(2)),
+//                createProperty("Genggong Villa", "Indonesia", "Bali", "Padang Bai", "80871", "-8.533333", "115.516667", "Genggong", customers.get(2)),
+//                createProperty("Riviera Classic Suite Sea View", "Greece", "Crete", "Heraklion", "71409", "35.339841", "25.144213", "Riviera Classic Suite Sea View", customers.get(0)),
+//                createProperty("Riviera Executive Suite Sea View", "Greece", "Crete", "Rethymno", "74100", "35.366", "24.483", "Riviera Executive Suite Sea View", customers.get(1)),
+//                createProperty("Sagara Candidasa Premiere", "Indonesia", "Bali", "Candidasa", "80851", "-8.5100184", "115.5704357", "Sagara Candidasa Premiere Room", customers.get(1))
+//        );
+//
+//        System.out.println("Properties seeded");
+//
+//        properties.parallelStream().forEach(property -> {
+//            generateDailyPricesForYear(property, 2024);
+//            generateDailyPricesForYear(property, 2025);
+//        });
+//
+//        System.out.println("Daily prices seeded");
+//
+//        List<Booking> bookings = List.of(
+//                createBooking(LocalDate.of(2024, 10, 18), LocalDate.of(2024, 10, 20), customers.get(2), properties.get(0)),
+//                createBooking(LocalDate.of(2024, 11, 5), LocalDate.of(2024, 11, 10), customers.get(2), properties.get(2)),
+//                createBooking(LocalDate.of(2024, 12, 15), LocalDate.of(2024, 12, 20), customers.get(1), properties.get(3)),
+//                createBooking(LocalDate.of(2025, 1, 5), LocalDate.of(2025, 1, 10), customers.get(0), properties.get(4))
+//        );
+//        bookingRepository.saveAll(bookings);
+//
+//        System.out.println("Bookings seeded");
+//
+//        List<Review> reviews = List.of(
+//                createReview("Very cozy place, but could improve the internet speed.", 4.2, customers.get(2), properties.get(2), bookings.get(1)),
+//                createReview("Loved the view from Cosmopolitan Apartment. Great amenities!", 4.8, customers.get(1), properties.get(3), bookings.get(2))
+//        );
+//        reviewRepository.saveAll(reviews);
+//
+//        System.out.println("Reviews seeded");
+//
+//        long endTime = System.currentTimeMillis();
+//        System.out.println("Total execution time: " + (endTime - startTime) + " ms");
+//    }
+//
+//    private Customer createOrUpdateCustomer(String email, String password, String firstName, String lastName, String jmbg, String phoneNumber, LocalDate dateOfBirth, String gender, String nationality, String address) {
+//        return customerRepository.findByEmail(email).orElseGet(() -> {
+//            Customer customer = new Customer();
+//            customer.setEmail(email);
+//            customer.setPassword(passwordEncoder.encode(password));
+//            customer.setFirstName(firstName);
+//            customer.setLastName(lastName);
+//            customer.setJmbg(jmbg);
+//            customer.setPhoneNumber(phoneNumber);
+//            customer.setActive(true);
+//            customer.setDateOfBirth(dateOfBirth);
+//            customer.setGender(gender);
+//            customer.setNationality(nationality);
+//            customer.setAddress(address);
+//            customer.setPermissions(new HashSet<>(getPermissionForRenter()));
+//            return customerRepository.save(customer);
+//        });
+//    }
+//
+//    private List<Permission> getPermissionForRenter() {
+//        return Constants.userPermissions.getOrDefault(Constants.RENTER, new ArrayList<>()).stream()
+//                .map(permissionName -> permissionRepository.findByName(permissionName).orElseThrow(() -> new RuntimeException("Permission not found: " + permissionName)))
+//                .collect(Collectors.toList());
+//    }
+//
+//    protected Property createProperty(String title, String country, String city, String address, String postalCode, String latitude, String longitude, String folderName, Customer owner) throws IOException {
+//        Property property = new Property();
+//        property.setTitle(title);
+//        property.setCountry(country);
+//        property.setCity(city);
+//        property.setAddress(address);
+//        property.setPostalCode(postalCode);
+//        property.setLatitude(latitude);
+//        property.setLongitude(longitude);
+//        property.setAmenities(getRandomAmenities());
+//        property.setCheckIn("14:00");
+//        property.setCheckOut("10:00");
+//        property.setHighlights(Arrays.asList("Beachfront", "Free WiFi", "Terrace", "Garden", "Private beach area"));
+//        property.setDescription("Located in the heart of " + city + ", " + title + " offers a luxurious stay with stunning views.");
+//        property.setImagePaths(copyImagesToUploads(folderName));
+//        property.setOwner(owner);
+//        return propertyRepository.save(property);
+//    }
+//
+//    private Booking createBooking(LocalDate checkInDate, LocalDate checkOutDate, Customer customer, Property property) {
+//        Booking booking = new Booking();
+//        booking.setCheckInDate(checkInDate);
+//        booking.setCheckOutDate(checkOutDate);
+//        booking.setTotalPrice(
+//                dailyPriceRepository.findPricesByDateRange(property.getId(), checkInDate, checkOutDate)
+//                        .stream().mapToDouble(DailyPrice::getPrice).sum());
+//        booking.setCustomer(customer);
+//        booking.setProperty(property);
+//        return bookingRepository.save(booking);
+//    }
+//
+//    private Review createReview(String comment, double rating, Customer customer, Property property, Booking booking) {
+//        Review review = new Review();
+//        review.setComment(comment);
+//        review.setRating(rating);
+//        review.setCustomer(customer);
+//        review.setProperty(property);
+//        review.setBooking(booking);
+//        return reviewRepository.save(review);
+//    }
+//
+//    private void generateDailyPricesForYear(Property property, int year) {
+//        Random random = new Random();
+//        LocalDate currentDate = LocalDate.of(year, 1, 1);
+//        LocalDate endDate = LocalDate.of(year, 12, 31);
+//
+//        List<DailyPrice> dailyPrices = new ArrayList<>();
+//        while (!currentDate.isAfter(endDate)) {
+//            double randomPrice = 30 + (500 - 30) * random.nextDouble();
+//            int consecutiveDays = random.nextInt(5) + 1;
+//
+//            for (int i = 0; i < consecutiveDays && !currentDate.isAfter(endDate); i++) {
+//                DailyPrice dailyPrice = new DailyPrice();
+//                dailyPrice.setDate(currentDate);
+//                dailyPrice.setPrice(randomPrice);
+//                dailyPrice.setProperty(property);
+//                dailyPrices.add(dailyPrice);
+//                currentDate = currentDate.plusDays(1);
+//            }
+//        }
+//        dailyPriceRepository.saveAll(dailyPrices);
+//    }
+//
+//    private List<String> copyImagesToUploads(String propertyFolderName) throws IOException {
+//        List<String> uploadedImagePaths = new ArrayList<>();
+//        Path propertyImagesPath = Paths.get(imagesDir + propertyFolderName);
+//        Path propertyUploadsPath = Paths.get(uploadsDir + propertyFolderName);
+//        if (!Files.exists(propertyUploadsPath)) {
+//            Files.createDirectories(propertyUploadsPath);
+//        }
+//
+//        try (Stream<Path> stream = Files.list(propertyImagesPath)) {
+//            uploadedImagePaths = stream.filter(Files::isRegularFile)
+//                    .map(imageFile -> {
+//                        try {
+//                            String newFileName = UUID.randomUUID().toString() + "-" + imageFile.getFileName().toString();
+//                            Path targetPath = propertyUploadsPath.resolve(newFileName);
+//                            Files.copy(imageFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+//                            return uploadsDir + propertyFolderName + "/" + newFileName;
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                            return null;
+//                        }
+//                    })
+//                    .filter(Objects::nonNull)
+//                    .collect(Collectors.toList());
+//        }
+//
+//        return uploadedImagePaths;
+//    }
+//
+//    private static final List<String> ALL_AMENITIES = Arrays.asList(
+//            "24hr front desk", "air-conditioned", "fitness", "pool", "sauna", "spa", "bar", "restaurant", "wi-fi", "pet-friendly",
+//            "family rooms", "room service", "concierge service", "laundry service", "fitness center", "non-smoking rooms",
+//            "outdoor pool", "indoor pool", "business center", "conference rooms", "meeting facilities", "breakfast buffet",
+//            "private beach", "hot tub", "massage", "all-inclusive", "casino", "airport transfer", "elevator", "balcony/terrace",
+//            "kitchenette"
+//    );
+//
+//    private List<String> getRandomAmenities() {
+//        Random random = new Random();
+//        Set<String> selectedAmenities = new HashSet<>();
+//        while (selectedAmenities.size() < 8) {
+//            selectedAmenities.add(ALL_AMENITIES.get(random.nextInt(ALL_AMENITIES.size())));
+//        }
+//        return new ArrayList<>(selectedAmenities);
+//    }
+//
+//    private void seedPermissions() {
+//        for(String s : Constants.allPermissions) {
+//            if(permissionRepository.findByName(s).isPresent()) {
+//                continue;
+//            }
+//
+//            Permission permission = new Permission();
+//            permission.setName(s);
+//            permission.setDescription(s);
+//            permissionRepository.save(permission);
+//        }
+//    }
+//}

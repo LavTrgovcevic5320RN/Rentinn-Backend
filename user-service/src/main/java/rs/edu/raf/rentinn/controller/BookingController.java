@@ -143,7 +143,7 @@ public class BookingController {
                                                     .setUnitAmount(amount)
                                                     .setProductData(
                                                             SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                                                    .setName("Hotel Booking")
+                                                                    .setName("Property Booking")
                                                                     .build())
                                                     .build())
                                     .build())

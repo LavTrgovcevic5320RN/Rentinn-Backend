@@ -200,7 +200,6 @@ public class AuthenticationController {
         return ResponseEntity.ok(customerRegistrationResponse);
     }*/
 
-
     @PostMapping("/activateAccount")
     @Operation(summary = "Customer wants to activate his account", description = "Returns true if customer exists," +
             "false otherwise. Also sends email to customer with activation link.")

@@ -22,6 +22,7 @@ public class CustomAuthProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         try {
+
             UserDetails customerDetails = this.customerDetailsService.loadUserByUsername(authentication.getName());
 
             if (customerDetails != null) {

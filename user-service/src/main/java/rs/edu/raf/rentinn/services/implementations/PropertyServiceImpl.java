@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import rs.edu.raf.rentinn.dtos.PropertyDto;
 import rs.edu.raf.rentinn.mapper.PropertyMapper;
+import rs.edu.raf.rentinn.model.Customer;
 import rs.edu.raf.rentinn.model.DailyPrice;
 import rs.edu.raf.rentinn.model.Property;
 import rs.edu.raf.rentinn.repositories.CustomerRepository;
@@ -115,6 +116,11 @@ public class PropertyServiceImpl implements PropertyService {
         propertyRepository.save(property);
 
         return true;
+    }
+
+    @Override
+    public List<PropertyDto> getFavoritePropertiesByUserId(Customer customer) {
+        return propertyRepository.findFavoritePropertiesByUserId(customer.getFavoriteProperties()).stream().map(propertyMapper::propertyToPropertyDto).toList();
     }
 
 }

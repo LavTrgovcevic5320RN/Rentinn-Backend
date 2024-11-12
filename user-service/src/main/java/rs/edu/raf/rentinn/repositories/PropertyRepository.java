@@ -19,5 +19,9 @@ public interface PropertyRepository extends JpaRepository<Property, Long> {
     @Query("SELECT p FROM Property p WHERE p.city LIKE %:location% OR p.country LIKE %:location%")
     List<Property> findByCityOrCountry(@Param("location") String location);
 
+    @Transactional
+    @Query("SELECT p FROM Property p WHERE p.id IN :favoritePropertyIds")
+    List<Property> findFavoritePropertiesByUserId(@Param("favoritePropertyIds") List<Long> favoritePropertyIds);
+
 }
 
